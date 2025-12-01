@@ -5,6 +5,108 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YourComps - Home</title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    /* ===== Header / Navigation ===== */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background: black;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+
+    .menu-toggle {
+      display: none;
+      font-size: 2em;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    nav {
+      display: flex;
+    }
+
+    nav a {
+      margin-left: 15px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===== Mobile ===== */
+    @media screen and (max-width: 768px) {
+      .menu-toggle {
+        display: block;
+      }
+      nav {
+        display: none;
+        flex-direction: column;
+        background: black;
+        position: absolute;
+        top: 60px;
+        right: 0;
+        width: 200px;
+        padding: 10px;
+      }
+      nav a {
+        margin: 10px 0;
+      }
+      nav.active {
+        display: flex;
+      }
+    }
+
+    /* ===== Hero Section ===== */
+    .hero {
+      background: #222;
+      color: white;
+      text-align: center;
+      padding: 100px 20px;
+    }
+
+    .hero h2 {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+
+    .hero p {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+
+    .hero .btn {
+      display: inline-block;
+      background: #ff6600;
+      color: white;
+      text-decoration: none;
+      padding: 15px 25px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .hero .btn:hover {
+      background: #e55b00;
+    }
+  </style>
 </head>
 <body>
 
@@ -29,7 +131,7 @@
     <a href="create-competition.html" class="btn">Start a Competition</a>
   </section>
 
-  <!-- Optional content below the hero -->
+  <!-- Optional main content -->
   <main>
     <section class="features">
       <h3>Why Choose YourComps?</h3>
@@ -41,7 +143,7 @@
     </section>
   </main>
 
-  <!-- JavaScript for mobile menu -->
+  <!-- JS for mobile menu -->
   <script>
     function toggleMenu() {
       const nav = document.querySelector('header nav');
