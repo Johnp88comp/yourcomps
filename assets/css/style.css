@@ -24,3 +24,34 @@ nav a:hover {
 main {
     padding: 20px;
 }
+/* Hero Section */
+.hero {
+  background: #222;
+  color: #fff;
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.hero h2 {
+  font-size: 2.5em;
+  margin-bottom: 15px;
+}
+
+.hero p {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+}
+
+.hero .btn {
+  display: inline-block;
+  background: #ff6600;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.hero .btn:hover {
+  background: #e55b00;
+}
