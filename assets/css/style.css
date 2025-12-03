@@ -1,12 +1,14 @@
-/* ----------- GLOBAL ----------- */
+/* ========== GENERAL STYLES ========== */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #fff;
-  color: #000;
 }
 
-/* ----------- HEADER ----------- */
+h1, h2, p {
+  margin: 0;
+}
+
+/* ========== HEADER & NAVIGATION ========== */
 header {
   background: black;
   color: white;
@@ -18,10 +20,9 @@ header {
 }
 
 header h1 {
-  margin: 0;
+  font-size: 1.5em;
 }
 
-/* ----------- NAVIGATION ----------- */
 nav {
   display: flex;
   gap: 15px;
@@ -37,7 +38,7 @@ nav a:hover {
   text-decoration: underline;
 }
 
-/* ----------- HAMBURGER BUTTON ----------- */
+/* ========== HAMBURGER MENU BUTTON ========== */
 .menu-toggle {
   display: none;
   font-size: 30px;
@@ -47,29 +48,7 @@ nav a:hover {
   cursor: pointer;
 }
 
-/* ----------- MOBILE MENU ----------- */
-@media(max-width: 768px) {
-  .menu-toggle {
-    display: block;
-  }
-
-  nav {
-    flex-direction: column;
-    position: absolute;
-    top: 60px;
-    right: 0;
-    background: black;
-    width: 200px;
-    display: none;
-    padding: 15px;
-  }
-
-  nav.active {
-    display: flex;
-  }
-}
-
-/* ----------- HERO SECTION ----------- */
+/* ========== HERO SECTION ========== */
 .hero {
   padding: 80px 20px;
   text-align: center;
@@ -95,4 +74,47 @@ nav a:hover {
   text-decoration: none;
   border-radius: 5px;
   font-weight: bold;
+}
+
+.btn:hover {
+  background: #e55b00;
+}
+
+/* ========== MOBILE STYLES ========== */
+@media(max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  nav {
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: black;
+    width: 200px;
+    display: none;
+    padding: 15px;
+    z-index: 999;
+  }
+
+  nav.active {
+    display: flex;
+  }
+
+  nav a {
+    margin: 10px 0;
+  }
+
+  .hero {
+    padding: 70px 20px;
+  }
+
+  .hero h2 {
+    font-size: 2em;
+  }
+
+  .hero p {
+    font-size: 1em;
+  }
 }
