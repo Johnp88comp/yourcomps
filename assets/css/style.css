@@ -1,120 +1,172 @@
-/* ========== GENERAL STYLES ========== */
+/* ===========================
+   YourComps - Premium Theme
+   Upgraded: gold gradients, hero, cards, forms
+   =========================== */
+
+/* Reset & base */
+* { box-sizing: border-box; margin:0; padding:0; }
+html,body { height:100%; }
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  background: #070708; /* near-black */
+  color: #f4f4f4;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.45;
 }
 
-h1, h2, p {
-  margin: 0;
+/* Palette variables */
+:root{
+  --black:#0B0B0D;
+  --slate:#151619;
+  --gold:#D4AF37;
+  --gold-2:#E7C96F;
+  --white:#FFFFFF;
+  --muted:#bdbdbd;
+  --glass: rgba(255,255,255,0.04);
+  --card-shadow: 0 10px 30px rgba(0,0,0,0.55);
 }
 
-/* ========== HEADER & NAVIGATION ========== */
+/* ===== Header / nav (consistent across pages) ===== */
 header {
-  background: black;
-  color: white;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
+  background: linear-gradient(180deg,var(--slate), #111);
+  padding: 18px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom: 1px solid rgba(212,175,55,0.06);
+  position:sticky;
+  top:0;
+  z-index:1000;
 }
-
 header h1 {
-  font-size: 1.5em;
+  color: var(--gold);
+  font-size:22px;
+  letter-spacing:1px;
+  font-weight:700;
 }
-
-nav {
-  display: flex;
-  gap: 15px;
-}
-
+nav { display:flex; gap:18px; align-items:center; }
 nav a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
+  color: #fff; text-decoration:none; font-weight:600; font-size:15px;
+  padding:6px 8px; border-radius:6px;
+}
+nav a:hover { color:var(--gold-2); transform:translateY(-2px); transition:0.18s; }
+
+/* mobile menu toggle (keeps previous .menu-toggle behavior) */
+.menu-toggle { display:none; font-size:28px; background:none; border:none; color:var(--gold); cursor:pointer; }
+@media (max-width:820px){
+  .menu-toggle { display:block; }
+  nav { display:none; position:absolute; top:66px; right:18px; background:linear-gradient(180deg,var(--slate), #0f0f10); padding:14px; flex-direction:column; width:220px; border-radius:8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+  nav.active { display:flex; }
+  nav a { padding:10px 6px; }
 }
 
-nav a:hover {
-  text-decoration: underline;
-}
-
-/* ========== HAMBURGER MENU BUTTON ========== */
-.menu-toggle {
-  display: none;
-  font-size: 30px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-/* ========== HERO SECTION ========== */
+/* ===== Premium Hero ===== */
 .hero {
+  background:
+    linear-gradient(180deg, rgba(11,11,13,0.95), rgba(11,11,13,0.85)),
+    radial-gradient(1200px 300px at 10% 20%, rgba(212,175,55,0.06), transparent 12%),
+    linear-gradient(160deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
   padding: 80px 20px;
-  text-align: center;
-  background: #222;
-  color: white;
+  text-align:center;
+  border-bottom: 1px solid rgba(212,175,55,0.04);
 }
-
+.hero .container { max-width:1100px; margin:0 auto; }
 .hero h2 {
-  font-size: 2.5em;
-  margin-bottom: 10px;
+  color: var(--gold);
+  font-size:40px; line-height:1.05; margin-bottom:12px;
+  text-shadow: 0 6px 30px rgba(0,0,0,0.7);
+}
+.hero p { color:#e9e6df; font-size:18px; margin-bottom:18px; max-width:820px; margin-left:auto; margin-right:auto; opacity:0.95; }
+.hero .cta-row { display:flex; gap:14px; justify-content:center; margin-top:18px; flex-wrap:wrap; }
+
+/* Gold gradient button */
+.btn-cta {
+  display:inline-flex; align-items:center; gap:10px;
+  background: linear-gradient(90deg,var(--gold) 0%, var(--gold-2) 60%, #f3df9b 100%);
+  color:var(--black); padding:14px 22px; font-weight:700; border-radius:10px; border:none;
+  text-decoration:none; cursor:pointer; box-shadow: 0 8px 26px rgba(212,175,55,0.14);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.btn-cta:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(212,175,55,0.2); }
+
+/* Secondary (outline) CTA */
+.btn-outline {
+  background: transparent;
+  color: var(--white);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding:12px 18px; border-radius:10px; font-weight:600;
+}
+.btn-outline:hover { border-color: rgba(212,175,55,0.6); color: var(--gold); transform:translateY(-2px); }
+
+/* ===== Page container ===== */
+.page-container { max-width:1100px; margin:40px auto; padding: 0 22px; }
+
+/* ===== Prize cards grid (listing) ===== */
+.cards-grid {
+  display:grid;
+  grid-template-columns: repeat(3,1fr);
+  gap:20px;
+}
+@media (max-width:1000px){ .cards-grid{ grid-template-columns: repeat(2,1fr);} }
+@media (max-width:640px){ .cards-grid{ grid-template-columns: 1fr;} }
+
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(212,175,55,0.06);
+  padding:14px;
+  border-radius:12px;
+  box-shadow: var(--card-shadow);
+  overflow:hidden;
+  display:flex; flex-direction:column;
 }
 
-.hero p {
-  font-size: 1.2em;
-  margin-bottom: 20px;
+/* Card image area (use <img> inside .card-img) */
+.card-img { width:100%; height:180px; background: linear-gradient(90deg, rgba(0,0,0,0.25), rgba(0,0,0,0.25)); border-radius:10px; overflow:hidden; display:block; margin-bottom:12px; }
+.card-img img { width:100%; height:100%; object-fit:cover; display:block; }
+
+/* card meta */
+.card-title { font-size:18px; color:var(--gold); font-weight:700; margin-bottom:6px; }
+.card-desc { color: #e6e6e6; font-size:14px; margin-bottom:10px; min-height:40px; opacity:0.95; }
+.card-meta { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:auto; }
+.meta-left { color: #dcd7c7; font-weight:600; }
+.card-actions { display:flex; gap:8px; }
+
+/* small pill */
+.pill { background: rgba(255,255,255,0.03); padding:6px 10px; border-radius:999px; font-weight:600; color:#f5f1df; }
+
+/* ===== Form styles (Create Competition) ===== */
+.form-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+  border-radius:12px; padding:20px; border:1px solid rgba(212,175,55,0.06);
+  box-shadow: var(--card-shadow);
 }
+.form-row { display:flex; gap:12px; margin-top:12px; align-items:center; }
+@media (max-width:820px){ .form-row{ flex-direction:column; } }
 
-.btn {
-  display: inline-block;
-  padding: 15px 25px;
-  background: orange;
-  color: white;
-  text-decoration: none;
-  border-radius: 5px;
-  font-weight: bold;
+label { display:block; font-weight:600; color:#d6c98a; margin-bottom:6px; }
+input[type=text], input[type=number], input[type=date], textarea, select {
+  width:100%; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.04);
+  background:#0f0f10; color:#efefef; font-size:15px;
 }
+textarea{ min-height:110px; resize:vertical; }
 
-.btn:hover {
-  background: #e55b00;
-}
+/* file upload preview area */
+.preview-grid { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.preview-thumb { width:120px; height:90px; border-radius:8px; overflow:hidden; background:#0c0c0c; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.03); }
+.preview-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-/* ========== MOBILE STYLES ========== */
-@media(max-width: 768px) {
-  .menu-toggle {
-    display: block;
-  }
+/* small helpers */
+.small-muted { color:#cfc6a1; font-size:13px; margin-top:6px; }
 
-  nav {
-    flex-direction: column;
-    position: absolute;
-    top: 60px;
-    right: 0;
-    background: black;
-    width: 200px;
-    display: none;
-    padding: 15px;
-    z-index: 999;
-  }
+/* ===== Footer ===== */
+footer { text-align:center; padding:28px 12px; color:var(--gold); opacity:0.95; margin-top:40px; border-top:1px solid rgba(212,175,55,0.04); }
 
-  nav.active {
-    display: flex;
-  }
+/* ===== Utilities ===== */
+.flex { display:flex; gap:12px; align-items:center; }
+.center { text-align:center; }
+.hidden { display:none !important; }
 
-  nav a {
-    margin: 10px 0;
-  }
-
-  .hero {
-    padding: 70px 20px;
-  }
-
-  .hero h2 {
-    font-size: 2em;
-  }
-
-  .hero p {
-    font-size: 1em;
-  }
-}
+/* ===== Animations ===== */
+.fade-up { transform: translateY(8px); opacity:0; animation:fadeUp .6s ease forwards; }
+@keyframes fadeUp { to { transform: translateY(0); opacity:1; } }

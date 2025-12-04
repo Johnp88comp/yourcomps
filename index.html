@@ -1,116 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YourComps - Home</title>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
-
-    /* HEADER */
-    header {
-      background: #000;
-      color: #fff;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-    }
-
-    header h1 {
-      margin: 0;
-    }
-
-    /* NAV */
-    nav {
-      display: flex;
-      gap: 15px;
-    }
-
-    nav a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    /* BURGER */
-    .menu-toggle {
-      display: none;
-      font-size: 30px;
-      background: none;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    /* MOBILE */
-    @media (max-width: 768px) {
-      .menu-toggle {
-        display: block;
-      }
-
-      nav {
-        display: none;
-        flex-direction: column;
-        background: #000;
-        position: absolute;
-        top: 60px;
-        right: 0;
-        width: 200px;
-        padding: 15px;
-      }
-
-      nav.active {
-        display: flex;
-      }
-    }
-
-    /* HERO */
-    .hero {
-      text-align: center;
-      padding: 80px 20px;
-      background: #222;
-      color: #fff;
-    }
-
-    .hero h2 {
-      margin-bottom: 10px;
-      font-size: 2.5em;
-    }
-
-    .hero p {
-      margin-bottom: 20px;
-      font-size: 1.2em;
-    }
-
-    .btn {
-      display: inline-block;
-      background: orange;
-      padding: 15px 25px;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YourComps — Home</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-
 <body>
 
 <header>
   <h1>YourComps</h1>
-
   <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-
   <nav id="mobileNav">
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
@@ -122,15 +22,84 @@
 </header>
 
 <section class="hero">
-  <h2>Win Amazing Prizes!</h2>
-  <p>Create competitions, sell tickets, and let us handle the draw.</p>
-  <a href="create-competition.html" class="btn">Start Competition</a>
+  <div class="container hero-inner">
+    <div class="container">
+      <h2>Win Luxury Prizes — Fairly & Transparently</h2>
+      <p>List your prize, set ticket price and maximum tickets. Our platform handles sales and the draw — built for high-value competitions.</p>
+      <div class="cta-row">
+        <a class="btn-cta" href="create-competition.html">Start a Competition</a>
+        <a class="btn-outline" href="about.html">How it Works</a>
+      </div>
+    </div>
+  </div>
 </section>
 
+<main class="page-container">
+  <h3 style="color:#e9dfb4; margin-bottom:14px;">Latest Competitions</h3>
+
+  <div class="cards-grid">
+    <!-- Card 1 -->
+    <article class="card fade-up">
+      <div class="card-img">
+        <img src="https://via.placeholder.com/800x450.png?text=Practical+Prize+1" alt="Prize image">
+      </div>
+      <div class="card-title">Rolex Submariner - Limited</div>
+      <div class="card-desc">Brand new, unworn Submariner. Full box & papers. Enter to win this iconic timepiece.</div>
+      <div class="card-meta">
+        <div class="meta-left"><span class="pill">£2.00</span> per ticket</div>
+        <div class="card-actions">
+          <a class="btn-outline" href="competition.html">View</a>
+          <a class="btn-cta" href="create-competition.html">Enter</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 2 -->
+    <article class="card fade-up">
+      <div class="card-img">
+        <img src="https://via.placeholder.com/800x450.png?text=Luxury+Prize+2" alt="Prize image">
+      </div>
+      <div class="card-title">Tesla Model 3 — Performance</div>
+      <div class="card-desc">Win a near-new Tesla Performance with full battery warranty. UK delivery included.</div>
+      <div class="card-meta">
+        <div class="meta-left"><span class="pill">£5</span> per ticket</div>
+        <div class="card-actions">
+          <a class="btn-outline" href="competition.html">View</a>
+          <a class="btn-cta" href="create-competition.html">Enter</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 3 -->
+    <article class="card fade-up">
+      <div class="card-img">
+        <img src="https://via.placeholder.com/800x450.png?text=Holiday+Prize+3" alt="Prize image">
+      </div>
+      <div class="card-title">Maldives Luxury Escape — 7 Nights</div>
+      <div class="card-desc">All-inclusive private resort vacation for two. Flights not included. T&Cs apply.</div>
+      <div class="card-meta">
+        <div class="meta-left"><span class="pill">£3</span> per ticket</div>
+        <div class="card-actions">
+          <a class="btn-outline" href="competition.html">View</a>
+          <a class="btn-cta" href="create-competition.html">Enter</a>
+        </div>
+      </div>
+    </article>
+  </div>
+
+</main>
+
+<footer>
+  © <span id="year"></span> YourComps — Premium competitions. Terms apply.
+</footer>
+
 <script>
+  // mobile menu toggle
   function toggleMenu() {
-    document.getElementById("mobileNav").classList.toggle("active");
+    document.getElementById('mobileNav').classList.toggle('active');
   }
+  // set year
+  document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 
 </body>
