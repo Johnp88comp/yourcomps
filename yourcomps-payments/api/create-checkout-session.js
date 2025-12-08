@@ -1,34 +1,35 @@
-const Stripe = require("stripe");
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
       mode: "payment",
+      payment_method_types: ["card"],
       line_items: [
         {
           price_data: {
             currency: "gbp",
             product_data: {
-              name: "Competition Ticket"
+              name: "Competition Tickets",
             },
-            unit_amount: 500
+            unit_amount: 1000, // £10.00
           },
-          quantity: 1
-        }
+          quantity: 1,
+        },
       ],
-      success_url: `${req.headers.origin}/success.html`,
-      cancel_url: `${req.headers.origin}/checkout.html`
+      success_url: "https://yourcomps-payments-583sgpduw-john-purvis-projects.vercel.app/success.html",
+      cancel_url: "https://yourcomps-payments-583sgpduw-john-purvis-projects.vercel.app/cancel.html",
     });
 
     res.status(200).json({ url: session.url });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Stripe error:", err);
+    res.status(500).json({ error: "Stripe session failed" });
   }
-};
+}
