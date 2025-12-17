@@ -1,38 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>YourComps Payments</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
+
 <body>
 
-<header>
-  <h1>YourComps Payments</h1>
-  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-<nav>
-  <a href="index.html">Home</a>
-  <a href="checkout.html">Checkout</a>
-  <a href="paypal.html">PayPal</a>
- <a href="https://your-main-site-url.com" target="_blank" style="opacity:0.7;">
-← Back to YourComps
-</a>
-</nav>
+<header class="site-header">
+  <div class="container">
+    <h1 class="logo">YourComps Payments</h1>
+  </div>
 </header>
 
-<section class="hero">
-  <h2>Pay for Your Competition Tickets</h2>
-  <p>Choose a payment option below to complete your purchase safely and securely.</p>
-  <a href="checkout.html" class="btn">Pay with Card (Stripe)</a>
-  <a href="paypal.html" class="btn">Pay with PayPal</a>
-</section>
+<main class="page-center">
+  <div class="card">
+    <h2 class="card-title">Pay for Your Competition Tickets</h2>
+    <p class="card-text">
+      Choose a secure payment method below to complete your purchase.
+    </p>
 
-<script>
-  function toggleMenu() {
-    document.querySelector('nav').classList.toggle('active');
-  }
-</script>
+    <div class="button-group">
+      <a href="checkout.html" class="btn btn-primary">
+        Pay with Card (Stripe)
+      </a>
+
+      <a href="paypal.html" class="btn btn-secondary">
+        Pay with PayPal
+      </a>
+    </div>
+
+    <p class="subtle-link">
+      <a href="https://yourcomps.vercel.app">← Back to YourComps</a>
+    </p>
+  </div>
+</main>
 
 </body>
 </html>
