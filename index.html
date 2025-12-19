@@ -2,15 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>YourComps — Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YourComps — Premium Competitions</title>
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
 
-<header>
-  <h1>YourComps</h1>
+<header class="site-header">
+  <h1 class="logo">YourComps</h1>
+
   <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
   <nav id="mobileNav">
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
@@ -22,84 +24,109 @@
 </header>
 
 <section class="hero">
-  <div class="container hero-inner">
-    <div class="container">
-      <h2>Win Luxury Prizes — Fairly & Transparently</h2>
-      <p>List your prize, set ticket price and maximum tickets. Our platform handles sales and the draw — built for high-value competitions.</p>
-      <div class="cta-row">
-        <a class="btn-cta" href="create-competition.html">Start a Competition</a>
-        <a class="btn-outline" href="about.html">How it Works</a>
-      </div>
+  <div class="hero-inner">
+    <h2>Win Luxury Prizes — Fairly & Transparently</h2>
+    <p>
+      Premium prize competitions built for high-value rewards.
+      Enter fairly. Create confidently. Draw transparently.
+    </p>
+
+    <div class="cta-row">
+      <a class="btn-cta" href="create-competition.html">Start a Competition</a>
+      <a class="btn-outline" href="about.html">How It Works</a>
     </div>
   </div>
 </section>
 
 <main class="page-container">
-  <h3 style="color:#e9dfb4; margin-bottom:14px;">Latest Competitions</h3>
+  <h3 class="section-title">Latest Competitions</h3>
 
   <div class="cards-grid">
-    <!-- Card 1 -->
+
+    <!-- CARD 1 -->
     <article class="card fade-up">
       <div class="card-img">
-        <img src="https://via.placeholder.com/800x450.png?text=Practical+Prize+1" alt="Prize image">
+        <img src="https://via.placeholder.com/800x450.png?text=Rolex+Submariner" alt="Rolex">
       </div>
-      <div class="card-title">Rolex Submariner - Limited</div>
-      <div class="card-desc">Brand new, unworn Submariner. Full box & papers. Enter to win this iconic timepiece.</div>
+
+      <div class="card-title">Rolex Submariner — Limited</div>
+      <div class="card-desc">
+        Brand new, unworn Submariner. Full box & papers included.
+      </div>
+
       <div class="card-meta">
-        <div class="meta-left"><span class="pill">£2.00</span> per ticket</div>
+        <span class="pill">£2.00 per ticket</span>
+
         <div class="card-actions">
-          <a class="btn-outline" href="competition.html">View</a>
-          <a class="btn-cta" href="create-competition.html">Enter</a>
+          <a class="btn-outline" href="#">View</a>
+          <a class="btn-cta"
+             href="https://yourcomps-payments.vercel.app/checkout.html">
+             Enter
+          </a>
         </div>
       </div>
     </article>
 
-    <!-- Card 2 -->
+    <!-- CARD 2 -->
     <article class="card fade-up">
       <div class="card-img">
-        <img src="https://via.placeholder.com/800x450.png?text=Luxury+Prize+2" alt="Prize image">
+        <img src="https://via.placeholder.com/800x450.png?text=Tesla+Model+3" alt="Tesla">
       </div>
+
       <div class="card-title">Tesla Model 3 — Performance</div>
-      <div class="card-desc">Win a near-new Tesla Performance with full battery warranty. UK delivery included.</div>
+      <div class="card-desc">
+        Near-new performance model with UK delivery included.
+      </div>
+
       <div class="card-meta">
-        <div class="meta-left"><span class="pill">£5</span> per ticket</div>
+        <span class="pill">£5.00 per ticket</span>
+
         <div class="card-actions">
-          <a class="btn-outline" href="competition.html">View</a>
-          <a class="btn-cta" href="create-competition.html">Enter</a>
+          <a class="btn-outline" href="#">View</a>
+          <a class="btn-cta"
+             href="https://yourcomps-payments.vercel.app/checkout.html">
+             Enter
+          </a>
         </div>
       </div>
     </article>
 
-    <!-- Card 3 -->
+    <!-- CARD 3 -->
     <article class="card fade-up">
       <div class="card-img">
-        <img src="https://via.placeholder.com/800x450.png?text=Holiday+Prize+3" alt="Prize image">
+        <img src="https://via.placeholder.com/800x450.png?text=Luxury+Holiday" alt="Holiday">
       </div>
+
       <div class="card-title">Maldives Luxury Escape — 7 Nights</div>
-      <div class="card-desc">All-inclusive private resort vacation for two. Flights not included. T&Cs apply.</div>
+      <div class="card-desc">
+        Private resort, all-inclusive stay for two.
+      </div>
+
       <div class="card-meta">
-        <div class="meta-left"><span class="pill">£3</span> per ticket</div>
+        <span class="pill">£3.00 per ticket</span>
+
         <div class="card-actions">
-          <a class="btn-outline" href="competition.html">View</a>
-          <a class="btn-cta" href="create-competition.html">Enter</a>
+          <a class="btn-outline" href="#">View</a>
+          <a class="btn-cta"
+             href="https://yourcomps-payments.vercel.app/checkout.html">
+             Enter
+          </a>
         </div>
       </div>
     </article>
-  </div>
 
+  </div>
 </main>
 
-<footer>
-  © <span id="year"></span> YourComps — Premium competitions. Terms apply.
+<footer class="site-footer">
+  © <span id="year"></span> YourComps — Premium competitions. UK compliant.
 </footer>
 
 <script>
-  // mobile menu toggle
-  function toggleMenu() {
-    document.getElementById('mobileNav').classList.toggle('active');
-  }
-  // set year
-  document.getElementById('year').textContent = new Date().getFullYear();
+function toggleMenu() {
+  document.getElementById('mobileNav').classList.toggle('active');
+}
+document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 
 </body>
