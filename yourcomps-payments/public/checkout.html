@@ -17,13 +17,16 @@
 
 <main class="page-center">
   <div class="card">
-    <h2 class="card-title" id="compTitle">Secure Checkout</h2>
+    <h2 class="card-title">Secure Checkout</h2>
 
-    <p class="card-text" id="compPrice">
-      Preparing secure payment…
-    </p>
+    <p class="card-text" id="productText"></p>
 
-    <div class="button-group">
+    <label style="margin-top:16px; display:block;">
+      Number of tickets
+      <input id="quantity" type="number" value="1" min="1" style="width:100%; padding:10px; margin-top:6px;">
+    </label>
+
+    <div class="button-group" style="margin-top:20px;">
       <button id="payBtn" class="btn btn-primary">
         Continue to Stripe Payment
       </button>
@@ -37,19 +40,24 @@
 
 <script>
 const params = new URLSearchParams(window.location.search);
-const title = params.get("title");
-const price = params.get("price"); // pounds
+const name = params.get("name");
+const price = params.get("price"); // in pounds
 
-document.getElementById("compTitle").textContent = title || "Competition Ticket";
-document.getElementById("compPrice").textContent =
-  price ? `£${price} per ticket` : "";
+document.getElementById("productText").textContent =
+  `${name} — £${price} per ticket`;
 
 document.getElementById("payBtn").addEventListener("click", async () => {
+  const quantity = document.getElementById("quantity").value;
+
   try {
     const response = await fetch("/api/create-checkout-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, price })
+      body: JSON.stringify({
+        name,
+        price,
+        quantity
+      })
     });
 
     const data = await response.json();

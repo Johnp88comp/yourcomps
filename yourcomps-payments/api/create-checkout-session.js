@@ -7,13 +7,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { title, price } = req.body;
-
-  if (!title || !price) {
-    return res.status(400).json({ error: "Missing data" });
-  }
-
   try {
+    const { name, price, quantity } = req.body;
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -21,12 +17,10 @@ export default async function handler(req, res) {
         {
           price_data: {
             currency: "gbp",
-            product_data: {
-              name: title,
-            },
-            unit_amount: Math.round(Number(price) * 100),
+            product_data: { name },
+            unit_amount: Math.round(Number(price) * 100), // £ → pence
           },
-          quantity: 1,
+          quantity: Number(quantity),
         },
       ],
       success_url: "https://yourcomps-payments.vercel.app/success.html",
