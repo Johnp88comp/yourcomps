@@ -1,149 +1,175 @@
-/* ==============================
-   YourComps Prestige Design
-   ============================== */
+/* ============================
+   YOURCOMPS PRESTIGE DESIGN
+   ============================ */
 
 :root {
-  --bg-dark: #0b0f14;
-  --bg-panel: rgba(255, 255, 255, 0.04);
+  --bg-dark: #070b11;
+  --bg-panel: rgba(255,255,255,0.04);
   --gold: #d4af37;
-  --gold-soft: #e9dfb4;
-  --text-main: #ffffff;
-  --text-muted: #aeb6c2;
+  --gold-soft: #e6d28f;
+  --text-main: #f5f5f5;
+  --text-muted: #b7bcc4;
   --border-soft: rgba(255,255,255,0.12);
 }
 
+/* Reset */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-html, body {
-  height: 100%;
+body {
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background:
-    radial-gradient(circle at top, #141b26 0%, #0b0f14 55%);
+  background: radial-gradient(circle at top, #0d1522 0%, var(--bg-dark) 55%);
   color: var(--text-main);
+  min-height: 100vh;
 }
 
-/* ==============================
-   Header
-   ============================== */
+/* ============================
+   HEADER
+   ============================ */
 
 .site-header {
-  padding: 18px 32px;
+  padding: 18px 28px;
   border-bottom: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent);
 }
 
 .logo {
-  font-size: 1.6rem;
+  font-size: 22px;
   font-weight: 700;
   color: var(--gold);
+  letter-spacing: 0.4px;
 }
 
-/* ==============================
-   Center Layout
-   ============================== */
+/* ============================
+   PAGE CENTER LAYOUT
+   ============================ */
 
 .page-center {
-  min-height: calc(100vh - 80px);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  align-items: center;
+  padding: 60px 20px;
 }
 
-/* ==============================
-   Card
-   ============================== */
+/* ============================
+   CARD (ALL PAYMENT PAGES)
+   ============================ */
 
 .card {
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.06),
-    rgba(255,255,255,0.02)
-  );
-  border-radius: 18px;
-  padding: 42px 48px;
-  width: 100%;
-  max-width: 520px;
+  background: var(--bg-panel);
+  backdrop-filter: blur(18px);
+  border-radius: 16px;
   border: 1px solid var(--border-soft);
-  box-shadow:
-    0 20px 60px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+  padding: 38px 34px;
+  max-width: 520px;
+  width: 100%;
   text-align: center;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.45);
 }
 
-/* ==============================
-   Success Page
-   ============================== */
-
-.success-title {
-  font-size: 2rem;
-  margin-bottom: 12px;
+/* Titles */
+.card h2,
+.card h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 14px;
   color: var(--gold-soft);
 }
 
-.success-text {
-  font-size: 1.05rem;
+/* Paragraphs */
+.card p {
+  font-size: 16px;
   color: var(--text-muted);
-  margin-bottom: 32px;
   line-height: 1.6;
+  margin-bottom: 26px;
 }
 
-/* ==============================
-   Buttons
-   ============================== */
+/* ============================
+   BUTTONS
+   ============================ */
 
 .button-group {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .btn {
-  display: inline-block;
-  padding: 14px 28px;
+  padding: 12px 22px;
+  font-size: 15px;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 0.95rem;
   text-decoration: none;
+  cursor: pointer;
   transition: all 0.25s ease;
-  border: 1px solid transparent;
 }
 
+/* Primary */
 .btn-primary {
-  background: linear-gradient(135deg, var(--gold), #b9962e);
-  color: #000;
+  background: linear-gradient(135deg, #d4af37, #f1dc93);
+  color: #111;
+  border: none;
   box-shadow: 0 10px 30px rgba(212,175,55,0.35);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 40px rgba(212,175,55,0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 40px rgba(212,175,55,0.55);
 }
 
+/* Secondary */
 .btn-secondary {
   background: transparent;
+  color: var(--gold-soft);
   border: 1px solid var(--gold);
-  color: var(--gold);
 }
 
 .btn-secondary:hover {
   background: rgba(212,175,55,0.1);
 }
 
-/* ==============================
-   Mobile
-   ============================== */
+/* ============================
+   PAYMENT LANDING PAGE
+   ============================ */
+
+.payment-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+}
+
+.payment-wrapper .card {
+  max-width: 560px;
+}
+
+/* ============================
+   LINKS
+   ============================ */
+
+a {
+  color: var(--gold-soft);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ============================
+   MOBILE
+   ============================ */
 
 @media (max-width: 520px) {
   .card {
-    padding: 32px 26px;
+    padding: 28px 22px;
   }
 
-  .success-title {
-    font-size: 1.6rem;
+  .card h2 {
+    font-size: 24px;
   }
 }

@@ -17,10 +17,10 @@
 
 <main class="page-center">
   <div class="card">
-    <h2 class="card-title">Secure Checkout</h2>
+    <h2 class="card-title" id="compTitle">Secure Checkout</h2>
 
-    <p class="card-text">
-      You’ll be redirected to Stripe to complete your payment securely.
+    <p class="card-text" id="compPrice">
+      Preparing secure payment…
     </p>
 
     <div class="button-group">
@@ -28,7 +28,6 @@
         Continue to Stripe Payment
       </button>
 
-      <!-- ✅ Correct link back to FRONTEND -->
       <a href="https://yourcomps.vercel.app" class="btn btn-secondary">
         Back to YourComps
       </a>
@@ -37,11 +36,22 @@
 </main>
 
 <script>
+const params = new URLSearchParams(window.location.search);
+const title = params.get("title");
+const price = params.get("price"); // pounds
+
+document.getElementById("compTitle").textContent = title || "Competition Ticket";
+document.getElementById("compPrice").textContent =
+  price ? `£${price} per ticket` : "";
+
 document.getElementById("payBtn").addEventListener("click", async () => {
   try {
     const response = await fetch("/api/create-checkout-session", {
-      method: "POST"
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, price })
     });
+
     const data = await response.json();
     window.location.href = data.url;
   } catch {
