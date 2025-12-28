@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Competition - YourComps</title>
-  <link rel="stylesheet" href="assets/css/style.css">
-  <!-- Stripe.js -->
-  <script src="https://js.stripe.com/v3/"></script>
-  <!-- PayPal SDK -->
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=GBP"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Competition | YourComps</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
 
-<header>
-  <h1>YourComps</h1>
-  <button class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+<header class="site-header">
+  <h1 class="logo">YourComps</h1>
 
-  <nav>
+  <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
+
+  <nav id="mobileNav">
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
     <a href="services.html">Services</a>
@@ -27,76 +24,58 @@
 </header>
 
 <section class="hero">
-  <h2>Create a Competition</h2>
-  <p>Fill out the details and accept payments to list your competition.</p>
+  <div class="hero-inner">
+    <h2>Create a Competition</h2>
+    <p>Fill out the details below. You'll be redirected to payment after.</p>
+  </div>
 </section>
 
-<section class="competition-form">
-  <form id="competitionForm">
-    <label for="title">Competition Title</label>
-    <input type="text" id="title" name="title" required>
+<main class="page-container">
 
-    <label for="description">Description</label>
-    <textarea id="description" name="description" rows="4" required></textarea>
+  <form id="competitionForm" class="card" style="max-width:600px;margin:auto;">
+    
+    <label>Competition Title</label>
+    <input type="text" id="title" required />
 
-    <label for="price">Ticket Price (£)</label>
-    <input type="number" id="price" name="price" min="1" step="0.01" required>
+    <label>Description</label>
+    <textarea id="description" rows="4" required></textarea>
 
-    <label for="endDate">End Date</label>
-    <input type="date" id="endDate" name="endDate" required>
+    <label>Ticket Price (£)</label>
+    <input type="number" id="price" min="1" step="0.01" required />
 
-    <button type="submit" class="btn">Create Competition</button>
+    <label>End Date</label>
+    <input type="date" id="endDate" required />
+
+    <button class="btn-cta" type="submit">
+      Continue to Checkout
+    </button>
+
   </form>
-</section>
 
-<section class="payments">
-  <h3>Pay to List Your Competition</h3>
-  <div id="stripe-button-container"></div>
-  <div id="paypal-button-container"></div>
-</section>
+</main>
+
+<footer class="site-footer">
+  © <span id="year"></span> YourComps
+</footer>
 
 <script>
-function toggleMenu() {
-  document.querySelector("nav").classList.toggle("active");
-}
-
-// === Stripe Checkout Example ===
-const stripe = Stripe('YOUR_STRIPE_PUBLIC_KEY'); // replace with your Stripe public key
-const form = document.getElementById('competitionForm');
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const price = parseFloat(document.getElementById('price').value) * 100; // in pence
-  const {error} = await stripe.redirectToCheckout({
-    lineItems: [{price_data: {
-      currency: 'gbp',
-      product_data: {name: document.getElementById('title').value},
-      unit_amount: price,
-    }, quantity: 1}],
-    mode: 'payment',
-    successUrl: window.location.href + '?success=true',
-    cancelUrl: window.location.href + '?canceled=true',
-  });
-  if (error) alert(error.message);
+/* mobile menu */
+document.getElementById("menuToggle").addEventListener("click", () => {
+  document.getElementById("mobileNav").classList.toggle("active");
 });
 
-// === PayPal Buttons ===
-paypal.Buttons({
-  createOrder: function(data, actions) {
-    const price = document.getElementById('price').value;
-    return actions.order.create({
-      purchase_units: [{
-        amount: { value: price },
-        description: document.getElementById('title').value
-      }]
-    });
-  },
-  onApprove: function(data, actions) {
-    return actions.order.capture().then(function(details) {
-      alert('Payment completed by ' + details.payer.name.given_name);
-    });
-  }
-}).render('#paypal-button-container');
+document.getElementById("year").textContent = new Date().getFullYear();
+
+/* redirect to checkout with query params */
+document.getElementById("competitionForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const title = encodeURIComponent(document.getElementById("title").value);
+  const price = encodeURIComponent(document.getElementById("price").value);
+
+  window.location.href =
+    `https://yourcomps-payments.vercel.app/checkout.html?title=${title}&price=${price}`;
+});
 </script>
 
 </body>
