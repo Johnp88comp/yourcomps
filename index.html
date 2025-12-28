@@ -89,17 +89,12 @@
 </footer>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const menuButton = document.querySelector(".menu-toggle");
+function toggleMenu() {
   const nav = document.getElementById("mobileNav");
-
-  if (!menuButton || !nav) return;
-
-  menuButton.addEventListener("click", () => {
-    nav.classList.toggle("active");
-  });
-});
+  nav.classList.toggle("active");
+}
 </script>
+
 
 
 

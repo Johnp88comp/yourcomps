@@ -9,14 +9,13 @@
 
 <body>
 
-<header>
-  <h1>YourComps</h1>
+<header class="site-header">
+  <h1 class="logo">YourComps</h1>
 
-  <!-- Hamburger Menu Button -->
-  <button class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+  <button class="menu-toggle" aria-label="Toggle menu">
+    ☰
+  </button>
 
-
-  <!-- Navigation (requires ID for mobile toggle) -->
   <nav id="mobileNav">
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
@@ -27,23 +26,19 @@
   </nav>
 </header>
 
+
 <section class="hero">
   <h2>Our Services</h2>
   <p>We provide competition hosting, ticket sales, automated draws, and more.</p>
 </section>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const menuButton = document.querySelector(".menu-toggle");
+function toggleMenu() {
   const nav = document.getElementById("mobileNav");
-
-  if (!menuButton || !nav) return;
-
-  menuButton.addEventListener("click", () => {
-    nav.classList.toggle("active");
-  });
-});
+  nav.classList.toggle("active");
+}
 </script>
+
 
 
 

@@ -11,7 +11,9 @@
 <header class="site-header">
   <h1 class="logo">YourComps</h1>
 
-  <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
+  <button class="menu-toggle" aria-label="Toggle menu">
+    ☰
+  </button>
 
   <nav id="mobileNav">
     <a href="index.html">Home</a>
@@ -22,6 +24,7 @@
     <a href="create-competition.html">Start Competition</a>
   </nav>
 </header>
+
 
 <section class="hero">
   <div class="hero-inner">
@@ -59,24 +62,12 @@
 </footer>
 
 <script>
-/* mobile menu */
-document.getElementById("menuToggle").addEventListener("click", () => {
-  document.getElementById("mobileNav").classList.toggle("active");
-});
-
-document.getElementById("year").textContent = new Date().getFullYear();
-
-/* redirect to checkout with query params */
-document.getElementById("competitionForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const title = encodeURIComponent(document.getElementById("title").value);
-  const price = encodeURIComponent(document.getElementById("price").value);
-
-  window.location.href =
-    `https://yourcomps-payments.vercel.app/checkout.html?title=${title}&price=${price}`;
-});
+function toggleMenu() {
+  const nav = document.getElementById("mobileNav");
+  nav.classList.toggle("active");
+}
 </script>
+
 
 </body>
 </html>
