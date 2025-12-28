@@ -13,7 +13,8 @@
   <h1>YourComps</h1>
 
   <!-- Hamburger Menu Button -->
-  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  <button class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+
 
   <!-- Navigation (requires ID for mobile toggle) -->
   <nav id="mobileNav">
@@ -32,10 +33,19 @@
 </section>
 
 <script>
-  function toggleMenu() {
-    document.getElementById("mobileNav").classList.toggle("active");
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  const menuButton = document.querySelector(".menu-toggle");
+  const nav = document.getElementById("mobileNav");
+
+  if (!menuButton || !nav) return;
+
+  menuButton.addEventListener("click", () => {
+    nav.classList.toggle("active");
+  });
+});
 </script>
+
+
 
 </body>
 </html>
