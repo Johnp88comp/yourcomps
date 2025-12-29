@@ -17,10 +17,8 @@ export default async function handler(req, res) {
         {
           price_data: {
             currency: "gbp",
-            product_data: {
-              name: title,
-            },
-            unit_amount: price, // ✅ ALREADY IN PENCE
+            product_data: { name: title },
+            unit_amount: price, // already in pence
           },
           quantity,
         },
@@ -32,6 +30,6 @@ export default async function handler(req, res) {
     res.status(200).json({ url: session.url });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Stripe session failed" });
+    res.status(500).json({ error: "Stripe error" });
   }
 }

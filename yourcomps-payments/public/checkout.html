@@ -37,25 +37,17 @@
 
 <script>
 const params = new URLSearchParams(window.location.search);
-
 const title = params.get("title");
-const price = params.get("pricePence");
-
-document.getElementById("productName").textContent = title;
-document.getElementById("priceText").textContent =
-  "£" + (price / 100).toFixed(2) + " per ticket";
+const price = Number(params.get("pricePence"));
+const qtyInput = document.getElementById("quantity");
 
 document.getElementById("payBtn").addEventListener("click", async () => {
-  const quantity = document.getElementById("quantity").value;
+  const quantity = Number(qtyInput.value || 1);
 
   const res = await fetch("/api/create-checkout-session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      title,
-      price,
-      quantity
-    })
+    body: JSON.stringify({ title, price, quantity })
   });
 
   const data = await res.json();
@@ -63,10 +55,12 @@ document.getElementById("payBtn").addEventListener("click", async () => {
   if (data.url) {
     window.location.href = data.url;
   } else {
-    alert("Payment failed");
+    alert("Payment failed.");
   }
 });
 </script>
+
+
 
 
 
