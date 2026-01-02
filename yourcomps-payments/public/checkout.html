@@ -42,24 +42,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const title = params.get("title");
   const pricePence = Number(params.get("pricePence"));
 
-  const productLine = document.getElementById("productLine");
-  const payBtn = document.getElementById("payBtn");
-  const quantityInput = document.getElementById("quantity");
+  const productLine = document.querySelector("#productLine");
+  const payBtn = document.querySelector("#payBtn");
+  const quantityInput = document.querySelector("#quantity");
 
-  if (!productLine || !payBtn || !quantityInput) {
-    console.error("Required elements not found in DOM");
+  if (!payBtn || !quantityInput) {
+    console.error("Checkout elements missing from page.");
     return;
   }
 
-  if (!title || !pricePence) {
-    productLine.textContent = "Missing product information.";
-    return;
+  if (productLine && title && pricePence) {
+    productLine.textContent =
+      `${title} — £${(pricePence / 100).toFixed(2)} per ticket`;
   }
-
-  productLine.textContent = `${title} — £${(pricePence / 100).toFixed(2)} per ticket`;
 
   payBtn.addEventListener("click", async () => {
-    const quantity = Number(quantityInput.value);
+    const quantity = Number(quantityInput.value || 1);
 
     try {
       const res = await fetch("/api/create-checkout-session", {
@@ -77,16 +75,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        console.error("Stripe error:", data);
+        console.error("Stripe response:", data);
         alert("Checkout failed. Please try again.");
       }
     } catch (err) {
       console.error("Network error:", err);
-      alert("Something went wrong. Please try again.");
+      alert("Network error – please try again.");
     }
   });
 });
 </script>
+
 
 
 </body>
