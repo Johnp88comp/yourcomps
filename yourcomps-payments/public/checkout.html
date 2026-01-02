@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const payBtn = document.getElementById("payBtn");
 
   if (!summary || !qtyInput || !payBtn) {
-    console.error("Required checkout elements missing.");
+    console.error("Checkout elements missing");
     return;
   }
 
@@ -72,12 +72,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        console.error("Stripe error:", data);
         alert("Checkout failed. Please try again.");
+        console.error(data);
       }
     } catch (err) {
       console.error("Network error:", err);
-      alert("Network error. Please try again.");
+      alert("Network error — please try again.");
     }
   });
 });
