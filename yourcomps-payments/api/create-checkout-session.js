@@ -8,7 +8,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ✅ This does NOT reveal the key. It only confirms presence/shape/length.
+    // ✅ Safe destructuring with defaults
+    const {
+      title = "Test Checkout",
+      price = 200,      // pence
+      quantity = 1
+    } = req.body || {};
+
     console.log(
       "STRIPE KEY CHECK:",
       typeof process.env.STRIPE_SECRET_KEY,
@@ -23,10 +29,10 @@ export default async function handler(req, res) {
         {
           price_data: {
             currency: "gbp",
-            product_data: { name: "Test Checkout" },
-            unit_amount: 200,
+            product_data: { name: title },
+            unit_amount: Number(price),
           },
-          quantity: 1,
+          quantity: Number(quantity),
         },
       ],
       success_url: "https://yourcomps-payments.vercel.app/success.html",
@@ -35,8 +41,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ url: session.url });
   } catch (err) {
-    // Keep this generic for users, but log details in Vercel logs.
-    console.error("STRIPE ERROR:", err?.message || err);
-    return res.status(500).json({ error: "Stripe session failed" });
+    console.error("STRIPE ERROR:", err);
+    return res.status(500).json({ error: err.message || "Stripe error" });
   }
 }
