@@ -173,3 +173,24 @@ a:hover {
     font-size: 24px;
   }
 }
+/* ============================
+   STRIPE CHECKOUT BUTTON SAFETY
+   ============================ */
+
+/* Ensure buttons are always clickable */
+button,
+.btn,
+.btn-primary {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 10;
+}
+
+/* Disabled state (when redirecting) */
+button:disabled,
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
