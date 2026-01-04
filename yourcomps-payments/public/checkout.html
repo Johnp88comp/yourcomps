@@ -10,30 +10,26 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const params = new URLSearchParams(window.location.search);
-
-  const title = params.get("title") || "Competition Entry";
-  const pricePence = Number(params.get("pricePence")) || 200;
+  console.log("Checkout script running");
 
   const summary = document.getElementById("summary");
   const payBtn = document.getElementById("payBtn");
   const qtyInput = document.getElementById("qty");
 
   if (!summary || !payBtn || !qtyInput) {
-    console.error("Checkout elements missing", {
-      summary,
-      payBtn,
-      qtyInput
-    });
+    console.error("DOM mismatch", { summary, payBtn, qtyInput });
     return;
   }
+
+  const params = new URLSearchParams(window.location.search);
+  const title = params.get("title") || "Competition Entry";
+  const pricePence = Number(params.get("pricePence")) || 200;
 
   summary.textContent =
     `${title} — £${(pricePence / 100).toFixed(2)} per ticket`;
 
   payBtn.addEventListener("click", async () => {
-    payBtn.disabled = true;
-    payBtn.textContent = "Redirecting to Stripe…";
+    alert("CLICK REGISTERED"); // temporary proof
 
     try {
       const res = await fetch("/api/create-checkout-session", {
@@ -51,13 +47,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        throw new Error(data.error || "Stripe error");
+        alert("Stripe error");
+        console.log(data);
       }
     } catch (err) {
       console.error(err);
-      alert("Checkout failed. Please try again.");
-      payBtn.disabled = false;
-      payBtn.textContent = "Continue to Stripe Payment";
+      alert("Network error");
     }
   });
 });
