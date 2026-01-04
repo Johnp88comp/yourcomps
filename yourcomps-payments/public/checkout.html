@@ -9,27 +9,57 @@
 <button id="payBtn">Pay Now</button>
 
 <script>
-document.getElementById("payBtn").addEventListener("click", async () => {
-  alert("CLICK REGISTERED");
+document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
 
-  const res = await fetch("/api/create-checkout-session", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      title: "Test Entry",
-      price: 200,
-      quantity: 1
-    })
-  });
+  const title = params.get("title") || "Competition Entry";
+  const pricePence = Number(params.get("pricePence")) || 200;
 
-  const data = await res.json();
+  const summary = document.getElementById("summary");
+  const payBtn = document.getElementById("payBtn");
+  const qtyInput = document.getElementById("qty");
 
-  if (data.url) {
-    window.location.href = data.url;
-  } else {
-    alert("NO STRIPE URL");
-    console.log(data);
+  if (!summary || !payBtn || !qtyInput) {
+    console.error("Checkout elements missing", {
+      summary,
+      payBtn,
+      qtyInput
+    });
+    return;
   }
+
+  summary.textContent =
+    `${title} — £${(pricePence / 100).toFixed(2)} per ticket`;
+
+  payBtn.addEventListener("click", async () => {
+    payBtn.disabled = true;
+    payBtn.textContent = "Redirecting to Stripe…";
+
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          price: pricePence,
+          quantity: Number(qtyInput.value || 1)
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || "Stripe error");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Checkout failed. Please try again.");
+      payBtn.disabled = false;
+      payBtn.textContent = "Continue to Stripe Payment";
+    }
+  });
 });
 </script>
 
