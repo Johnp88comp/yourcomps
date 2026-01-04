@@ -17,6 +17,7 @@
   <div class="card">
     <h2>Secure Checkout</h2>
 
+    <!-- ✅ THIS ELEMENT MUST EXIST -->
     <p id="summary"></p>
 
     <label>Number of tickets</label>
@@ -38,17 +39,20 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("Checkout script loaded");
+
+  const summary = document.getElementById("summary");
   const payBtn = document.getElementById("payBtn");
   const quantityInput = document.getElementById("quantity");
-  const summary = document.getElementById("summary");
 
-  if (!payBtn) {
-    console.error("payBtn not found");
+  if (!summary || !payBtn || !quantityInput) {
+    console.error("Checkout elements missing", {
+      summary,
+      payBtn,
+      quantityInput
+    });
     return;
   }
-
-  // 🔍 Prove the handler is attached
-  console.log("Checkout script loaded");
 
   const params = new URLSearchParams(window.location.search);
   const title = params.get("title") || "Competition Entry";
@@ -58,8 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
     `${title} — £${(pricePence / 100).toFixed(2)} per ticket`;
 
   payBtn.addEventListener("click", async () => {
-    alert("CLICK CONFIRMED"); // temporary – we remove this after
-
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting to Stripe…";
 
@@ -83,14 +85,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       console.error(err);
-      alert("Checkout failed");
+      alert("Checkout failed. Please try again.");
       payBtn.disabled = false;
       payBtn.textContent = "Continue to Stripe Payment";
     }
   });
 });
 </script>
-
 
 </body>
 </html>
