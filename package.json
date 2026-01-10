@@ -1,0 +1,24 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Johnp88comp/yourcomps.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Johnp88comp/yourcomps/issues"
+  },
+  "homepage": "https://github.com/Johnp88comp/yourcomps#readme",
+  "dependencies": {
+    "stripe": "^20.1.2"
+  }
+}
