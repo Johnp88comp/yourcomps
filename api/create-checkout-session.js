@@ -10,6 +10,12 @@ export default async function handler(req, res) {
   try {
     const { priceId, quantity = 1 } = req.body;
 
+    if (!priceId) {
+      return res.status(400).json({ error: "Missing priceId" });
+    }
+
+    const baseUrl = "https://yourcomps.vercel.app";
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -19,14 +25,13 @@ export default async function handler(req, res) {
           quantity,
         },
       ],
-      success_url: `${req.headers.origin}/success.html`,
-      cancel_url: `${req.headers.origin}/cancel.html`,
+      success_url: `${baseUrl}/success.html`,
+      cancel_url: `${baseUrl}/cancel.html`,
     });
 
     res.status(200).json({ url: session.url });
   } catch (err) {
-    console.error(err);
+    console.error("Stripe error:", err);
     res.status(500).json({ error: err.message });
   }
 }
-
