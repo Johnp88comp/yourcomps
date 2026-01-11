@@ -15,97 +15,91 @@
 
 <main class="page-center">
   <div class="card">
-
     <h2>Secure Checkout</h2>
 
-    <p id="summary"></p>
+    <p id="summary">Competition Entry</p>
 
-    <!-- TICKET QUANTITY -->
     <label>Number of tickets</label>
     <input id="qty" type="number" min="1" value="1" />
 
-    <hr style="margin:20px 0">
+    <hr />
 
-    <!-- SKILL QUESTION -->
-    <div id="skillBox">
-      <h3>Skill Question (required)</h3>
-      <p id="questionText"></p>
+    <h3>Skill Question (required)</h3>
+    <p id="question"></p>
 
-      <div id="options"></div>
+    <div id="options" class="options"></div>
 
-      <p id="skillError" style="color:#ff6b6b; display:none; margin-top:10px;">
-        Incorrect answer. Please try again.
-      </p>
-    </div>
-
-    <div class="button-group" style="margin-top:20px;">
+    <div class="button-group">
       <button id="payBtn" class="btn btn-primary" disabled>
         Continue to Stripe Payment
       </button>
 
-      <a href="https://yourcomps.vercel.app" class="btn btn-secondary">
+      <a href="/" class="btn btn-secondary">
         Back to YourComps
       </a>
     </div>
-
   </div>
 </main>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  const summary = document.getElementById("summary");
-  const qtyInput = document.getElementById("qty");
-  const payBtn = document.getElementById("payBtn");
-
   const params = new URLSearchParams(window.location.search);
 
-  // SAFELY read priceId (trim spaces)
-  let priceId = params.get("priceId");
-  if (priceId) {
-    priceId = priceId.trim();
-  }
+  const priceId = params.get("priceId")?.trim();
+  const title = params.get("title") || "Competition Entry";
+  const question = params.get("q");
+  const answer = params.get("a");
+  const options = params.get("o");
 
-  if (!priceId) {
+  const summary = document.getElementById("summary");
+  const qty = document.getElementById("qty");
+  const payBtn = document.getElementById("payBtn");
+  const questionEl = document.getElementById("question");
+  const optionsEl = document.getElementById("options");
+
+  if (!priceId || !question || !answer || !options) {
     alert("Invalid competition link");
-    payBtn.disabled = true;
     return;
   }
 
-  summary.textContent = "Competition Entry";
+  summary.textContent = title;
+  questionEl.textContent = question;
 
-  payBtn.addEventListener("click", async () => {
-    payBtn.disabled = true;
-    payBtn.textContent = "Loading…";
+  options.split(",").forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.className = "option-btn";
 
-    try {
-      const res = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceId,
-          quantity: Number(qtyInput.value || 1)
-        })
-      });
-
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert("Payment error. Please try again.");
+    btn.onclick = () => {
+      if (opt === answer) {
+        btn.classList.add("correct");
         payBtn.disabled = false;
-        payBtn.textContent = "Continue to Stripe Payment";
-        console.error(data);
+      } else {
+        btn.classList.add("wrong");
+        alert("Incorrect answer. Please try again.");
       }
+    };
 
-    } catch (err) {
-      console.error(err);
-      alert("Network error");
-      payBtn.disabled = false;
-      payBtn.textContent = "Continue to Stripe Payment";
-    }
+    optionsEl.appendChild(btn);
   });
+
+  payBtn.onclick = async () => {
+    payBtn.disabled = true;
+    payBtn.textContent = "Redirecting…";
+
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        priceId,
+        quantity: Number(qty.value || 1)
+      })
+    });
+
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  };
 });
 </script>
 
