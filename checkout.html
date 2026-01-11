@@ -54,78 +54,58 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+  const summary = document.getElementById("summary");
+  const qtyInput = document.getElementById("qty");
+  const payBtn = document.getElementById("payBtn");
+
   const params = new URLSearchParams(window.location.search);
 
-  const priceId = params.get("priceId");
-  const title = params.get("title") || "Competition Entry";
-  const question = params.get("q");
-  const correctAnswer = params.get("a");
-  const optionsRaw = params.get("o");
+  // SAFELY read priceId (trim spaces)
+  let priceId = params.get("priceId");
+  if (priceId) {
+    priceId = priceId.trim();
+  }
 
-  if (!priceId || !question || !correctAnswer || !optionsRaw) {
+  if (!priceId) {
     alert("Invalid competition link");
+    payBtn.disabled = true;
     return;
   }
 
-  const options = optionsRaw.split(",");
+  summary.textContent = "Competition Entry";
 
-  document.getElementById("summary").textContent =
-    `${title} — select ticket quantity below`;
+  payBtn.addEventListener("click", async () => {
+    payBtn.disabled = true;
+    payBtn.textContent = "Loading…";
 
-  document.getElementById("questionText").textContent = question;
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceId,
+          quantity: Number(qtyInput.value || 1)
+        })
+      });
 
-  const optionsBox = document.getElementById("options");
-  const payBtn = document.getElementById("payBtn");
-  const error = document.getElementById("skillError");
+      const data = await res.json();
 
-  let answeredCorrectly = false;
-
-  options.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.textContent = opt;
-    btn.className = "btn btn-secondary";
-    btn.style.margin = "5px";
-
-    btn.onclick = () => {
-      if (opt === correctAnswer) {
-        answeredCorrectly = true;
-        payBtn.disabled = false;
-        error.style.display = "none";
-
-        [...optionsBox.children].forEach(b => b.disabled = true);
-        btn.classList.add("btn-primary");
+      if (data.url) {
+        window.location.href = data.url;
       } else {
-        error.style.display = "block";
+        alert("Payment error. Please try again.");
+        payBtn.disabled = false;
+        payBtn.textContent = "Continue to Stripe Payment";
+        console.error(data);
       }
-    };
 
-    optionsBox.appendChild(btn);
-  });
-
-  payBtn.onclick = async () => {
-    if (!answeredCorrectly) return;
-
-    const qty = Number(document.getElementById("qty").value || 1);
-
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        priceId,
-        quantity: qty
-      })
-    });
-
-    const data = await res.json();
-
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert("Checkout failed");
-      console.error(data);
+    } catch (err) {
+      console.error(err);
+      alert("Network error");
+      payBtn.disabled = false;
+      payBtn.textContent = "Continue to Stripe Payment";
     }
-  };
-
+  });
 });
 </script>
 
