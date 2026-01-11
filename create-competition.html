@@ -12,6 +12,7 @@
   <h1 class="logo">YourComps</h1>
 
   <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+
     ☰
   </button>
 
@@ -75,6 +76,43 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
+<script>
+document.getElementById("competitionForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const params = new URLSearchParams(window.location.search);
+  const priceId = params.get("priceId");
+
+  if (!priceId) {
+    alert("Missing price information. Please return and select a competition.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        priceId,
+        quantity: 1
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Checkout failed. Please try again.");
+      console.error(data);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Network error. Please try again.");
+  }
+});
+</script>
+
 
 
 
