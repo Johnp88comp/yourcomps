@@ -10,41 +10,36 @@
 <body>
 
 <header class="site-header">
-  <div class="container">
-    <h1 class="logo">YourComps</h1>
-  </div>
+  <h1 class="logo">YourComps</h1>
 </header>
 
 <main class="page-center">
-  <div class="card">
+  <div class="card checkout-card">
 
-    <h2>Secure Checkout</h2>
+    <h2 class="card-title">Secure Checkout</h2>
 
-    <p id="summary" class="muted"></p>
+    <p id="summary" class="checkout-summary"></p>
 
-    <!-- Ticket quantity -->
     <div class="form-group">
       <label for="qty">Number of tickets</label>
       <input id="qty" type="number" min="1" value="1" />
     </div>
 
-    <hr />
+    <hr class="divider" />
 
-    <!-- Skill question -->
-    <div class="form-group">
+    <div class="skill-section">
       <h3>Skill Question <span class="required">(required)</span></h3>
-      <p id="question"></p>
+      <p id="question" class="skill-question"></p>
 
-      <div id="options" class="radio-group"></div>
+      <div id="options" class="options-grid"></div>
     </div>
 
-    <!-- Actions -->
     <div class="button-group">
-      <button id="payBtn" class="btn-cta" disabled>
+      <button id="payBtn" class="btn btn-primary" disabled>
         Continue to Stripe Payment
       </button>
 
-      <a href="/" class="btn-outline">
+      <a href="/" class="btn btn-secondary">
         Back to YourComps
       </a>
     </div>
@@ -75,36 +70,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const payBtn = document.getElementById("payBtn");
   const qty = document.getElementById("qty");
 
-  options.split(",").forEach((opt, index) => {
-    const id = `option-${index}`;
+  options.split(",").forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.className = "option-btn";
 
-    const label = document.createElement("label");
-    label.className = "radio-option";
-
-    const input = document.createElement("input");
-    input.type = "radio";
-    input.name = "skill";
-    input.value = opt;
-    input.id = id;
-
-    input.addEventListener("change", () => {
+    btn.onclick = () => {
       if (opt === answer) {
         payBtn.disabled = false;
+        btn.classList.add("correct");
       } else {
-        payBtn.disabled = true;
+        btn.classList.add("wrong");
         alert("Incorrect answer. Please try again.");
       }
-    });
+    };
 
-    const span = document.createElement("span");
-    span.textContent = opt;
-
-    label.appendChild(input);
-    label.appendChild(span);
-    optionsContainer.appendChild(label);
+    optionsContainer.appendChild(btn);
   });
 
-  payBtn.addEventListener("click", async () => {
+  payBtn.onclick = async () => {
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting…";
 
@@ -119,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = await res.json();
     if (data.url) window.location.href = data.url;
-  });
+  };
 
 });
 </script>

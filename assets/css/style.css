@@ -237,4 +237,65 @@ body {
   flex-wrap: wrap;
 }
 
+/* ===== Checkout improvements ===== */
+
+.checkout-card {
+  max-width: 520px;
+  margin: 60px auto;
+  padding: 32px;
+}
+
+.checkout-summary {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.divider {
+  margin: 28px 0;
+  opacity: 0.3;
+}
+
+.skill-section {
+  margin-bottom: 28px;
+}
+
+.skill-question {
+  margin: 12px 0 16px;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.option-btn {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #666;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.option-btn:hover {
+  border-color: gold;
+}
+
+.option-btn.correct {
+  background: gold;
+  color: #000;
+}
+
+.option-btn.wrong {
+  background: #7a1f1f;
+  border-color: #b33;
+}
+
+
 
