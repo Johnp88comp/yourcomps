@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Secure Checkout | YourComps</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <h1 class="logo">YourComps</h1>
+  </div>
+</header>
+
+<main class="page-center">
+  <div class="card">
+    <h2 id="title">Secure Checkout</h2>
+
+    <p id="summary"></p>
+
+    <!-- Skill question -->
+    <div id="questionBox" style="margin: 1rem 0;">
+      <p id="questionText"></p>
+      <div id="choices"></div>
+    </div>
+
+    <label for="qty">Number of tickets</label>
+    <input id="qty" type="number" min="1" value="1" />
+
+    <div class="button-group">
+      <button id="payBtn" class="btn btn-primary" disabled>
+        Continue to Stripe Payment
+      </button>
+
+      <a href="/" class="btn btn-secondary">
+        Back to YourComps
+      </a>
+    </div>
+  </div>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const cfgRaw = params.get("cfg");
+
+  if (!cfgRaw) {
+    alert("Invalid competition link");
+    return;
+  }
+
+  const cfg = JSON.parse(atob(cfgRaw));
+
+  const titleEl = document.getElementById("title");
+  const summary = document.getElementById("summary");
+  const questionText = document.getElementById("questionText");
+  const choicesBox = document.getElementById("choices");
+  const payBtn = document.getElementById("payBtn");
+  const qtyInput = document.getElementById("qty");
+
+  titleEl.textContent = cfg.title;
+  summary.textContent = `£${cfg.price} per ticket`;
+
+  questionText.textContent = cfg.question;
+
+  let selectedIndex = null;
+
+  cfg.choices.forEach((choice, index) => {
+    const label = document.createElement("label");
+    label.style.display = "block";
+
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = "skill";
+    radio.value = index;
+
+    radio.addEventListener("change", () => {
+      selectedIndex = index;
+      payBtn.disabled = index !== cfg.answerIndex;
+    });
+
+    label.appendChild(radio);
+    label.append(` ${choice}`);
+    choicesBox.appendChild(label);
+  });
+
+  payBtn.addEventListener("click", async () => {
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        priceId: cfg.priceId,
+        quantity: Number(qtyInput.value || 1),
+        answerIndex: selectedIndex,
+        correctIndex: cfg.answerIndex
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Checkout failed");
+      console.error(data);
+    }
+  });
+});
+</script>
+
+</body>
+</html>
