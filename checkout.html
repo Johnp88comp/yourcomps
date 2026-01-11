@@ -14,32 +14,36 @@
 </header>
 
 <main class="page-center">
-  <div class="card checkout-card">
+  <div class="card">
 
-    <h2 class="checkout-title">Secure Checkout</h2>
+    <h2>Secure Checkout</h2>
 
-    <p id="summary" class="checkout-summary">
-      Loading competition details…
-    </p>
+    <p id="summary"></p>
 
-    <label for="qty" class="checkout-label">
-      Number of tickets
-    </label>
+    <!-- TICKET QUANTITY -->
+    <label>Number of tickets</label>
+    <input id="qty" type="number" min="1" value="1" />
 
-    <input
-      id="qty"
-      type="number"
-      min="1"
-      value="1"
-      class="checkout-input"
-    />
+    <hr style="margin:20px 0">
 
-    <div class="checkout-actions">
-      <button id="payBtn" class="btn-cta">
+    <!-- SKILL QUESTION -->
+    <div id="skillBox">
+      <h3>Skill Question (required)</h3>
+      <p id="questionText"></p>
+
+      <div id="options"></div>
+
+      <p id="skillError" style="color:#ff6b6b; display:none; margin-top:10px;">
+        Incorrect answer. Please try again.
+      </p>
+    </div>
+
+    <div class="button-group" style="margin-top:20px;">
+      <button id="payBtn" class="btn btn-primary" disabled>
         Continue to Stripe Payment
       </button>
 
-      <a href="/" class="btn-outline">
+      <a href="https://yourcomps.vercel.app" class="btn btn-secondary">
         Back to YourComps
       </a>
     </div>
@@ -49,32 +53,66 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const summary = document.getElementById("summary");
-  const qtyInput = document.getElementById("qty");
-  const payBtn = document.getElementById("payBtn");
 
   const params = new URLSearchParams(window.location.search);
-  const title = params.get("title");
-  const priceId = params.get("priceId");
 
-  if (!priceId || !title) {
+  const priceId = params.get("priceId");
+  const title = params.get("title") || "Competition Entry";
+  const question = params.get("q");
+  const correctAnswer = params.get("a");
+  const optionsRaw = params.get("o");
+
+  if (!priceId || !question || !correctAnswer || !optionsRaw) {
     alert("Invalid competition link");
-    window.location.href = "/";
     return;
   }
 
-  summary.textContent = `${title} — select ticket quantity below`;
+  const options = optionsRaw.split(",");
 
-  payBtn.addEventListener("click", async () => {
-    payBtn.disabled = true;
-    payBtn.textContent = "Redirecting…";
+  document.getElementById("summary").textContent =
+    `${title} — select ticket quantity below`;
+
+  document.getElementById("questionText").textContent = question;
+
+  const optionsBox = document.getElementById("options");
+  const payBtn = document.getElementById("payBtn");
+  const error = document.getElementById("skillError");
+
+  let answeredCorrectly = false;
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.className = "btn btn-secondary";
+    btn.style.margin = "5px";
+
+    btn.onclick = () => {
+      if (opt === correctAnswer) {
+        answeredCorrectly = true;
+        payBtn.disabled = false;
+        error.style.display = "none";
+
+        [...optionsBox.children].forEach(b => b.disabled = true);
+        btn.classList.add("btn-primary");
+      } else {
+        error.style.display = "block";
+      }
+    };
+
+    optionsBox.appendChild(btn);
+  });
+
+  payBtn.onclick = async () => {
+    if (!answeredCorrectly) return;
+
+    const qty = Number(document.getElementById("qty").value || 1);
 
     const res = await fetch("/api/create-checkout-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         priceId,
-        quantity: Number(qtyInput.value || 1)
+        quantity: qty
       })
     });
 
@@ -83,11 +121,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (data.url) {
       window.location.href = data.url;
     } else {
-      alert("Payment error — please try again");
-      payBtn.disabled = false;
-      payBtn.textContent = "Continue to Stripe Payment";
+      alert("Checkout failed");
+      console.error(data);
     }
-  });
+  };
+
 });
 </script>
 
