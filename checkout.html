@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Secure Checkout | YourComps</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
 
 <body>
@@ -15,9 +15,10 @@
 
 <main class="page-center">
   <div class="card">
+
     <h2>Secure Checkout</h2>
 
-    <p id="summary">Competition Entry</p>
+    <p id="summary"></p>
 
     <label>Number of tickets</label>
     <input id="qty" type="number" min="1" value="1" />
@@ -38,6 +39,7 @@
         Back to YourComps
       </a>
     </div>
+
   </div>
 </main>
 
@@ -46,25 +48,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const params = new URLSearchParams(window.location.search);
 
-  const priceId = params.get("priceId")?.trim();
-  const title = params.get("title") || "Competition Entry";
+  const priceId = params.get("priceId");
+  const title = params.get("title");
   const question = params.get("q");
   const answer = params.get("a");
   const options = params.get("o");
-
-  const summary = document.getElementById("summary");
-  const qty = document.getElementById("qty");
-  const payBtn = document.getElementById("payBtn");
-  const questionEl = document.getElementById("question");
-  const optionsEl = document.getElementById("options");
 
   if (!priceId || !question || !answer || !options) {
     alert("Invalid competition link");
     return;
   }
 
-  summary.textContent = title;
-  questionEl.textContent = question;
+  document.getElementById("summary").textContent = title;
+  document.getElementById("question").textContent = question;
+
+  const optionsContainer = document.getElementById("options");
+  const payBtn = document.getElementById("payBtn");
+  const qty = document.getElementById("qty");
 
   options.split(",").forEach(opt => {
     const btn = document.createElement("button");
@@ -73,15 +73,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btn.onclick = () => {
       if (opt === answer) {
-        btn.classList.add("correct");
         payBtn.disabled = false;
+        btn.classList.add("correct");
       } else {
         btn.classList.add("wrong");
         alert("Incorrect answer. Please try again.");
       }
     };
 
-    optionsEl.appendChild(btn);
+    optionsContainer.appendChild(btn);
   });
 
   payBtn.onclick = async () => {
@@ -100,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = await res.json();
     if (data.url) window.location.href = data.url;
   };
+
 });
 </script>
 
