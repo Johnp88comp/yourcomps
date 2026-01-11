@@ -297,5 +297,64 @@ body {
   border-color: #b33;
 }
 
+/* ===== Checkout button fixes ===== */
+
+.button-group {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+/* Primary Stripe button */
+.btn-primary {
+  background: linear-gradient(135deg, #f5c451, #d4a42c);
+  color: #000;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(245, 196, 81, 0.35);
+}
+
+/* Disabled Stripe button (important) */
+.btn-primary:disabled {
+  background: #3a3a3a;
+  color: #888;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Secondary button */
+.btn-secondary {
+  padding: 14px 22px;
+  border-radius: 12px;
+  border: 1px solid #d4a42c;
+  color: #d4a42c;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(212, 164, 44, 0.1);
+}
+.checkout-card {
+  background: radial-gradient(
+    circle at top,
+    rgba(255, 255, 255, 0.06),
+    rgba(0, 0, 0, 0.9)
+  );
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
 
 
