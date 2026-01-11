@@ -10,29 +10,40 @@
 <body>
 
 <header class="site-header">
-  <div class="container">
-    <h1 class="logo">YourComps</h1>
-  </div>
+  <h1 class="logo">YourComps</h1>
 </header>
 
 <main class="page-center">
-  <div class="card">
-    <h2>Secure Checkout</h2>
+  <div class="card checkout-card">
 
-    <p id="summary">Loading...</p>
+    <h2 class="checkout-title">Secure Checkout</h2>
 
-    <label for="qty">Number of tickets</label>
-    <input id="qty" type="number" min="1" value="1" />
+    <p id="summary" class="checkout-summary">
+      Loading competition details…
+    </p>
 
-    <div class="button-group">
-      <button id="payBtn" class="btn btn-primary">
+    <label for="qty" class="checkout-label">
+      Number of tickets
+    </label>
+
+    <input
+      id="qty"
+      type="number"
+      min="1"
+      value="1"
+      class="checkout-input"
+    />
+
+    <div class="checkout-actions">
+      <button id="payBtn" class="btn-cta">
         Continue to Stripe Payment
       </button>
 
-      <a href="/index.html" class="btn btn-secondary">
+      <a href="/" class="btn-outline">
         Back to YourComps
       </a>
     </div>
+
   </div>
 </main>
 
@@ -43,13 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const payBtn = document.getElementById("payBtn");
 
   const params = new URLSearchParams(window.location.search);
+  const title = params.get("title");
   const priceId = params.get("priceId");
-  const title = params.get("title") || "Competition Entry";
 
-  if (!priceId) {
+  if (!priceId || !title) {
     alert("Invalid competition link");
-    if (summary) summary.textContent = "Missing priceId in link.";
-    if (payBtn) payBtn.disabled = true;
+    window.location.href = "/";
     return;
   }
 
@@ -57,31 +67,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   payBtn.addEventListener("click", async () => {
     payBtn.disabled = true;
-    payBtn.textContent = "Loading...";
+    payBtn.textContent = "Redirecting…";
 
-    try {
-      const res = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceId,
-          quantity: Number(qtyInput.value || 1),
-        }),
-      });
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        priceId,
+        quantity: Number(qtyInput.value || 1)
+      })
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        console.error(data);
-        alert(data.error || "Checkout failed. Please try again.");
-        payBtn.disabled = false;
-        payBtn.textContent = "Continue to Stripe Payment";
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Network error. Please try again.");
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Payment error — please try again");
       payBtn.disabled = false;
       payBtn.textContent = "Continue to Stripe Payment";
     }

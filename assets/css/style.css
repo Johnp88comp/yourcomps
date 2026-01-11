@@ -209,4 +209,32 @@ body {
     background: rgba(255,255,255,0.05);
   }
 }
+.checkout-card {
+  max-width: 420px;
+  margin: auto;
+  text-align: center;
+}
+
+.checkout-title {
+  margin-bottom: 12px;
+}
+
+.checkout-summary {
+  opacity: 0.85;
+  margin-bottom: 20px;
+}
+
+.checkout-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.checkout-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 
