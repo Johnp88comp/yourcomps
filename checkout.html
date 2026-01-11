@@ -17,25 +17,19 @@
 
 <main class="page-center">
   <div class="card">
-    <h2 id="title">Secure Checkout</h2>
+    <h2>Secure Checkout</h2>
 
-    <p id="summary"></p>
-
-    <!-- Skill question -->
-    <div id="questionBox" style="margin: 1rem 0;">
-      <p id="questionText"></p>
-      <div id="choices"></div>
-    </div>
+    <p id="summary">Loading...</p>
 
     <label for="qty">Number of tickets</label>
     <input id="qty" type="number" min="1" value="1" />
 
     <div class="button-group">
-      <button id="payBtn" class="btn btn-primary" disabled>
+      <button id="payBtn" class="btn btn-primary">
         Continue to Stripe Payment
       </button>
 
-      <a href="/" class="btn btn-secondary">
+      <a href="/index.html" class="btn btn-secondary">
         Back to YourComps
       </a>
     </div>
@@ -44,68 +38,52 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const params = new URLSearchParams(window.location.search);
-  const cfgRaw = params.get("cfg");
+  const summary = document.getElementById("summary");
+  const qtyInput = document.getElementById("qty");
+  const payBtn = document.getElementById("payBtn");
 
-  if (!cfgRaw) {
+  const params = new URLSearchParams(window.location.search);
+  const priceId = params.get("priceId");
+  const title = params.get("title") || "Competition Entry";
+
+  if (!priceId) {
     alert("Invalid competition link");
+    if (summary) summary.textContent = "Missing priceId in link.";
+    if (payBtn) payBtn.disabled = true;
     return;
   }
 
-  const cfg = JSON.parse(atob(cfgRaw));
-
-  const titleEl = document.getElementById("title");
-  const summary = document.getElementById("summary");
-  const questionText = document.getElementById("questionText");
-  const choicesBox = document.getElementById("choices");
-  const payBtn = document.getElementById("payBtn");
-  const qtyInput = document.getElementById("qty");
-
-  titleEl.textContent = cfg.title;
-  summary.textContent = `£${cfg.price} per ticket`;
-
-  questionText.textContent = cfg.question;
-
-  let selectedIndex = null;
-
-  cfg.choices.forEach((choice, index) => {
-    const label = document.createElement("label");
-    label.style.display = "block";
-
-    const radio = document.createElement("input");
-    radio.type = "radio";
-    radio.name = "skill";
-    radio.value = index;
-
-    radio.addEventListener("change", () => {
-      selectedIndex = index;
-      payBtn.disabled = index !== cfg.answerIndex;
-    });
-
-    label.appendChild(radio);
-    label.append(` ${choice}`);
-    choicesBox.appendChild(label);
-  });
+  summary.textContent = `${title} — select ticket quantity below`;
 
   payBtn.addEventListener("click", async () => {
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        priceId: cfg.priceId,
-        quantity: Number(qtyInput.value || 1),
-        answerIndex: selectedIndex,
-        correctIndex: cfg.answerIndex
-      })
-    });
+    payBtn.disabled = true;
+    payBtn.textContent = "Loading...";
 
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceId,
+          quantity: Number(qtyInput.value || 1),
+        }),
+      });
 
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert("Checkout failed");
-      console.error(data);
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error(data);
+        alert(data.error || "Checkout failed. Please try again.");
+        payBtn.disabled = false;
+        payBtn.textContent = "Continue to Stripe Payment";
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error. Please try again.");
+      payBtn.disabled = false;
+      payBtn.textContent = "Continue to Stripe Payment";
     }
   });
 });
