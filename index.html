@@ -21,10 +21,8 @@
     <a href="services.html">Services</a>
     <a href="contact.html">Contact</a>
     <a href="dashboard.html">Dashboard</a>
-    <a href="create-competition.html">Start Competition</a>
   </nav>
 </header>
-
 
 <section class="hero">
   <div class="hero-inner">
@@ -32,7 +30,6 @@
     <p>Premium prize competitions built for high-value rewards.</p>
 
     <div class="cta-row">
-      <a class="btn-cta" href="create-competition.html">Start a Competition</a>
       <a class="btn-outline" href="about.html">How It Works</a>
     </div>
   </div>
@@ -56,10 +53,9 @@
         <span class="pill">£2.00 per ticket</span>
         <div class="card-actions">
           <a class="btn-cta"
-             href="create-competition.html?priceId=price_1SoPse2fDjX9ON8hXaQknmrU">
+             href="/checkout.html?title=Rolex%20Submariner&pricePence=200&priceId=price_1SoPse2fDjX9ON8hXaQknmrU">
             Enter
           </a>
-
         </div>
       </div>
     </article>
@@ -77,10 +73,9 @@
         <span class="pill">£5.00 per ticket</span>
         <div class="card-actions">
           <a class="btn-cta"
-             href="create-competition.html?priceId=PRICE_ID_FOR_TESLA">
+             href="/checkout.html?title=Tesla%20Model%203&pricePence=500&priceId=PRICE_ID_FOR_TESLA">
             Enter
           </a>
-
         </div>
       </div>
     </article>
@@ -102,13 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
       nav.classList.toggle("active");
     });
   }
+
+  document.getElementById("year").textContent = new Date().getFullYear();
 });
 </script>
-
-
-
-
-
 
 </body>
 </html>
