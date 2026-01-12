@@ -48,7 +48,7 @@
 
 <script>
 /* ===============================
-   QUESTION POOL (SAFE & SCALABLE)
+   QUESTION POOL
    =============================== */
 const QUESTION_POOL = {
   time_math: {
@@ -70,65 +70,49 @@ document.addEventListener("DOMContentLoaded", () => {
   const priceId = params.get("priceId");
   const title   = params.get("title");
   const qid     = params.get("qid");
+  const entryId = params.get("entryId");
 
-  // ✅ VALIDATE LINK
-  if (!priceId || !qid || !QUESTION_POOL[qid]) {
+  if (!priceId || !qid || !entryId || !QUESTION_POOL[qid]) {
     alert("Invalid competition link");
     return;
   }
 
-  // ✅ LOAD QUESTION FROM POOL
-  const { question, answer, options } = QUESTION_POOL[qid];
-
-  // ✅ ATTEMPT TRACKING (per competition)
-  const ATTEMPT_KEY = `skillAttempts_${priceId}`;
-  const VISIT_KEY   = `skillVisit_${priceId}`;
+  const questionData = QUESTION_POOL[qid];
+  const ATTEMPT_KEY = `attempts_${priceId}_${entryId}`;
   const MAX_ATTEMPTS = 3;
-
-  // ✅ Reset attempts ONLY when entering from competition page
-  if (!sessionStorage.getItem(VISIT_KEY)) {
-    sessionStorage.setItem(VISIT_KEY, "true");
-    sessionStorage.removeItem(ATTEMPT_KEY);
-  }
 
   let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY) || 0);
 
-  // UI refs
   document.getElementById("summary").textContent = title;
-  document.getElementById("question").textContent = question;
+  document.getElementById("question").textContent = questionData.question;
 
   const optionsContainer = document.getElementById("options");
   const payBtn = document.getElementById("payBtn");
   const qty = document.getElementById("qty");
 
-  // ❌ Locked out
   if (attempts >= MAX_ATTEMPTS) {
     optionsContainer.innerHTML =
       "<p style='color:#ff6b6b;'>You have used all attempts for this entry. Please return to the competition page.</p>";
     return;
   }
 
-  // ✅ RENDER OPTIONS
-  options.forEach(opt => {
+  questionData.options.forEach(opt => {
     const btn = document.createElement("button");
     btn.textContent = opt;
     btn.className = "option-btn";
 
     btn.onclick = () => {
-      if (opt === answer) {
+      if (opt === questionData.answer) {
         payBtn.disabled = false;
         btn.classList.add("correct");
-
-        // Clear attempt state on success
         sessionStorage.removeItem(ATTEMPT_KEY);
-        sessionStorage.removeItem(VISIT_KEY);
       } else {
         attempts++;
         sessionStorage.setItem(ATTEMPT_KEY, attempts);
         btn.classList.add("wrong");
 
         if (attempts >= MAX_ATTEMPTS) {
-          alert("Incorrect. You have used all available attempts.");
+          alert("Incorrect. You have used all attempts.");
           optionsContainer.innerHTML =
             "<p style='color:#ff6b6b;'>No attempts remaining for this entry.</p>";
         } else {
@@ -140,7 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
     optionsContainer.appendChild(btn);
   });
 
-  // 💳 STRIPE
   payBtn.onclick = async () => {
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting…";
