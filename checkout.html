@@ -52,29 +52,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const params = new URLSearchParams(window.location.search);
 
-  const priceId = params.get("priceId");
-  const title = params.get("title");
+  const priceId  = params.get("priceId");
+  const title    = params.get("title");
   const question = params.get("q");
-  const answer = params.get("a");
-  const options = params.get("o");
+  const answer   = params.get("a");
+  const options  = params.get("o");
 
   if (!priceId || !question || !answer || !options) {
     alert("Invalid competition link");
     return;
   }
 
-  // ---- Competition-scoped attempt key ----
+  // ---- Attempt limiting (per competition) ----
   const ATTEMPT_KEY = `skillAttempts_${priceId}`;
   const MAX_ATTEMPTS = 3;
 
-  // ---- RESET attempts on fresh visit ----
-  if (!sessionStorage.getItem(`${ATTEMPT_KEY}_initialised`)) {
-    sessionStorage.setItem(ATTEMPT_KEY, "0");
-    sessionStorage.setItem(`${ATTEMPT_KEY}_initialised`, "true");
+  // Reset attempts on fresh page load / reload
+  const navType = performance.getEntriesByType("navigation")[0]?.type;
+  if (navType === "navigate" || navType === "reload") {
+    sessionStorage.removeItem(ATTEMPT_KEY);
   }
 
-  let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY));
+  let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY) || 0);
 
+  // Populate UI
   document.getElementById("summary").textContent = title;
   document.getElementById("question").textContent = question;
 
@@ -88,17 +89,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // Render options
   options.split(",").forEach(opt => {
     const btn = document.createElement("button");
-    btn.textContent = opt;
+    btn.textContent = opt.trim();
     btn.className = "option-btn";
 
     btn.onclick = () => {
-      if (opt === answer) {
+      if (opt.trim() === answer.trim()) {
         payBtn.disabled = false;
         btn.classList.add("correct");
         sessionStorage.removeItem(ATTEMPT_KEY);
-        sessionStorage.removeItem(`${ATTEMPT_KEY}_initialised`);
       } else {
         attempts++;
         sessionStorage.setItem(ATTEMPT_KEY, attempts);
@@ -117,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     optionsContainer.appendChild(btn);
   });
 
+  // Stripe checkout
   payBtn.onclick = async () => {
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting…";
@@ -131,7 +133,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const data = await res.json();
-    if (data.url) window.location.href = data.url;
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Payment error. Please try again.");
+    }
   };
 
 });
