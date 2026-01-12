@@ -70,6 +70,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const payBtn = document.getElementById("payBtn");
   const qty = document.getElementById("qty");
 
+  // --- Attempt limiting ---
+  let attempts = Number(sessionStorage.getItem("skillAttempts") || 0);
+  const MAX_ATTEMPTS = 3;
+
+  if (attempts >= MAX_ATTEMPTS) {
+    optionsContainer.innerHTML = "<p style='color:#ff6b6b;'>You have used all attempts for this question.</p>";
+    return;
+  }
+
   options.split(",").forEach(opt => {
     const btn = document.createElement("button");
     btn.textContent = opt;
@@ -79,9 +88,18 @@ document.addEventListener("DOMContentLoaded", () => {
       if (opt === answer) {
         payBtn.disabled = false;
         btn.classList.add("correct");
+        sessionStorage.removeItem("skillAttempts");
       } else {
+        attempts++;
+        sessionStorage.setItem("skillAttempts", attempts);
         btn.classList.add("wrong");
-        alert("Incorrect answer. Please try again.");
+
+        if (attempts >= MAX_ATTEMPTS) {
+          alert("Incorrect. You have used all available attempts.");
+          optionsContainer.innerHTML = "<p style='color:#ff6b6b;'>No attempts remaining.</p>";
+        } else {
+          alert(`Incorrect. Attempts remaining: ${MAX_ATTEMPTS - attempts}`);
+        }
       }
     };
 
