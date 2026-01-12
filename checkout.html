@@ -63,6 +63,18 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // ---- Competition-scoped attempt key ----
+  const ATTEMPT_KEY = `skillAttempts_${priceId}`;
+  const MAX_ATTEMPTS = 3;
+
+  // ---- RESET attempts on fresh visit ----
+  if (!sessionStorage.getItem(`${ATTEMPT_KEY}_initialised`)) {
+    sessionStorage.setItem(ATTEMPT_KEY, "0");
+    sessionStorage.setItem(`${ATTEMPT_KEY}_initialised`, "true");
+  }
+
+  let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY));
+
   document.getElementById("summary").textContent = title;
   document.getElementById("question").textContent = question;
 
@@ -70,12 +82,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const payBtn = document.getElementById("payBtn");
   const qty = document.getElementById("qty");
 
-  // --- Attempt limiting ---
-  let attempts = Number(localStorage.getItem("skillAttempts") || 0);
-  const MAX_ATTEMPTS = 3;
-
   if (attempts >= MAX_ATTEMPTS) {
-    optionsContainer.innerHTML = "<p style='color:#ff6b6b;'>You have used all attempts for this question.</p>";
+    optionsContainer.innerHTML =
+      "<p style='color:#ff6b6b;'>You have used all attempts for this competition.</p>";
     return;
   }
 
@@ -88,15 +97,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (opt === answer) {
         payBtn.disabled = false;
         btn.classList.add("correct");
-        localStorage.removeItem("skillAttempts");
+        sessionStorage.removeItem(ATTEMPT_KEY);
+        sessionStorage.removeItem(`${ATTEMPT_KEY}_initialised`);
       } else {
         attempts++;
-        localStorage.setItem("skillAttempts", attempts);
+        sessionStorage.setItem(ATTEMPT_KEY, attempts);
         btn.classList.add("wrong");
 
         if (attempts >= MAX_ATTEMPTS) {
           alert("Incorrect. You have used all available attempts.");
-          optionsContainer.innerHTML = "<p style='color:#ff6b6b;'>No attempts remaining.</p>";
+          optionsContainer.innerHTML =
+            "<p style='color:#ff6b6b;'>No attempts remaining.</p>";
         } else {
           alert(`Incorrect. Attempts remaining: ${MAX_ATTEMPTS - attempts}`);
         }
