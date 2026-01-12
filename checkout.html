@@ -30,7 +30,6 @@
     <div class="skill-section">
       <h3>Skill Question <span class="required">(required)</span></h3>
       <p id="question" class="skill-question"></p>
-
       <div id="options" class="options-grid"></div>
     </div>
 
@@ -38,7 +37,6 @@
       <button id="payBtn" class="btn btn-primary" disabled>
         Continue to Stripe Payment
       </button>
-
       <a href="/" class="btn btn-secondary">
         Back to YourComps
       </a>
@@ -48,34 +46,42 @@
 </main>
 
 <script>
+/* ===============================
+   QUESTION POOL (SAFE & SCALABLE)
+   =============================== */
+const QUESTION_POOL = {
+  time_math: {
+    question: "If a train leaves at 12:00 and takes 30 minutes, when does it arrive?",
+    answer: "12:30",
+    options: ["12:15", "12:30", "12:45", "13:00"]
+  },
+  simple_addition: {
+    question: "What is 7 + 5?",
+    answer: "12",
+    options: ["10", "11", "12", "13"]
+  }
+};
+
 document.addEventListener("DOMContentLoaded", () => {
 
   const params = new URLSearchParams(window.location.search);
 
-  const priceId  = params.get("priceId");
-  const title    = params.get("title");
-  const question = params.get("q");
-  const answer   = params.get("a");
-  const options  = params.get("o");
+  const priceId = params.get("priceId");
+  const title = params.get("title");
+  const qid = params.get("qid");
 
-  if (!priceId || !question || !answer || !options) {
+  if (!priceId || !qid || !QUESTION_POOL[qid]) {
     alert("Invalid competition link");
     return;
   }
 
-  // ---- Attempt limiting (per competition) ----
-  const ATTEMPT_KEY = `skillAttempts_${priceId}`;
-  const MAX_ATTEMPTS = 3;
+  const { question, answer, options } = QUESTION_POOL[qid];
 
-  // Reset attempts on fresh page load / reload
-  const navType = performance.getEntriesByType("navigation")[0]?.type;
-  if (navType === "navigate" || navType === "reload") {
-    sessionStorage.removeItem(ATTEMPT_KEY);
-  }
+  const ATTEMPT_KEY = `skillAttempts_${priceId}_${qid}`;
+  const MAX_ATTEMPTS = 3;
 
   let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY) || 0);
 
-  // Populate UI
   document.getElementById("summary").textContent = title;
   document.getElementById("question").textContent = question;
 
@@ -89,36 +95,38 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Render options
-  options.split(",").forEach(opt => {
-    const btn = document.createElement("button");
-    btn.textContent = opt.trim();
-    btn.className = "option-btn";
+  // Shuffle options (simple, safe)
+  options
+    .slice()
+    .sort(() => Math.random() - 0.5)
+    .forEach(opt => {
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+      btn.className = "option-btn";
 
-    btn.onclick = () => {
-      if (opt.trim() === answer.trim()) {
-        payBtn.disabled = false;
-        btn.classList.add("correct");
-        sessionStorage.removeItem(ATTEMPT_KEY);
-      } else {
-        attempts++;
-        sessionStorage.setItem(ATTEMPT_KEY, attempts);
-        btn.classList.add("wrong");
-
-        if (attempts >= MAX_ATTEMPTS) {
-          alert("Incorrect. You have used all available attempts.");
-          optionsContainer.innerHTML =
-            "<p style='color:#ff6b6b;'>No attempts remaining.</p>";
+      btn.onclick = () => {
+        if (opt === answer) {
+          payBtn.disabled = false;
+          btn.classList.add("correct");
+          sessionStorage.removeItem(ATTEMPT_KEY);
         } else {
-          alert(`Incorrect. Attempts remaining: ${MAX_ATTEMPTS - attempts}`);
+          attempts++;
+          sessionStorage.setItem(ATTEMPT_KEY, attempts);
+          btn.classList.add("wrong");
+
+          if (attempts >= MAX_ATTEMPTS) {
+            alert("Incorrect. You have used all available attempts.");
+            optionsContainer.innerHTML =
+              "<p style='color:#ff6b6b;'>No attempts remaining.</p>";
+          } else {
+            alert(`Incorrect. Attempts remaining: ${MAX_ATTEMPTS - attempts}`);
+          }
         }
-      }
-    };
+      };
 
-    optionsContainer.appendChild(btn);
-  });
+      optionsContainer.appendChild(btn);
+    });
 
-  // Stripe checkout
   payBtn.onclick = async () => {
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting…";
@@ -133,11 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert("Payment error. Please try again.");
-    }
+    if (data.url) window.location.href = data.url;
   };
 
 });
