@@ -66,19 +66,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const params = new URLSearchParams(window.location.search);
 
-  const priceId = params.get("priceId");
-  const title = params.get("title");
-  const qid = params.get("qid");
+  const priceId  = params.get("priceId");
+  const title    = params.get("title");
+  const question = params.get("q");
+  const answer   = params.get("a");
+  const options  = params.get("o");
 
-  if (!priceId || !qid || !QUESTION_POOL[qid]) {
+  if (!priceId || !question || !answer || !options) {
     alert("Invalid competition link");
     return;
   }
 
-  const { question, answer, options } = QUESTION_POOL[qid];
-
-  const ATTEMPT_KEY = `skillAttempts_${priceId}_${qid}`;
+  const ATTEMPT_KEY = `skillAttempts_${priceId}`;
+  const VISIT_KEY   = `skillVisit_${priceId}`;
   const MAX_ATTEMPTS = 3;
+
+  // ✅ Reset attempts ONLY on a new visit from Enter button
+  if (!sessionStorage.getItem(VISIT_KEY)) {
+    sessionStorage.setItem(VISIT_KEY, "true");
+    sessionStorage.removeItem(ATTEMPT_KEY);
+  }
 
   let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY) || 0);
 
@@ -91,41 +98,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (attempts >= MAX_ATTEMPTS) {
     optionsContainer.innerHTML =
-      "<p style='color:#ff6b6b;'>You have used all attempts for this competition.</p>";
+      "<p style='color:#ff6b6b;'>You have used all attempts for this entry. Please return to the competition page.</p>";
     return;
   }
 
-  // Shuffle options (simple, safe)
-  options
-    .slice()
-    .sort(() => Math.random() - 0.5)
-    .forEach(opt => {
-      const btn = document.createElement("button");
-      btn.textContent = opt;
-      btn.className = "option-btn";
+  options.split(",").forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.className = "option-btn";
 
-      btn.onclick = () => {
-        if (opt === answer) {
-          payBtn.disabled = false;
-          btn.classList.add("correct");
-          sessionStorage.removeItem(ATTEMPT_KEY);
+    btn.onclick = () => {
+      if (opt === answer) {
+        payBtn.disabled = false;
+        btn.classList.add("correct");
+
+        // ✅ Clear session on success
+        sessionStorage.removeItem(ATTEMPT_KEY);
+        sessionStorage.removeItem(VISIT_KEY);
+      } else {
+        attempts++;
+        sessionStorage.setItem(ATTEMPT_KEY, attempts);
+        btn.classList.add("wrong");
+
+        if (attempts >= MAX_ATTEMPTS) {
+          alert("Incorrect. You have used all available attempts.");
+          optionsContainer.innerHTML =
+            "<p style='color:#ff6b6b;'>No attempts remaining for this entry.</p>";
         } else {
-          attempts++;
-          sessionStorage.setItem(ATTEMPT_KEY, attempts);
-          btn.classList.add("wrong");
-
-          if (attempts >= MAX_ATTEMPTS) {
-            alert("Incorrect. You have used all available attempts.");
-            optionsContainer.innerHTML =
-              "<p style='color:#ff6b6b;'>No attempts remaining.</p>";
-          } else {
-            alert(`Incorrect. Attempts remaining: ${MAX_ATTEMPTS - attempts}`);
-          }
+          alert(`Incorrect. Attempts remaining: ${MAX_ATTEMPTS - attempts}`);
         }
-      };
+      }
+    };
 
-      optionsContainer.appendChild(btn);
-    });
+    optionsContainer.appendChild(btn);
+  });
 
   payBtn.onclick = async () => {
     payBtn.disabled = true;
