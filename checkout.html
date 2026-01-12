@@ -71,42 +71,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const qty = document.getElementById("qty");
 
   // --- Attempt limiting ---
-  let attempts = Number(sessionStorage.getItem("skillAttempts") || 0);
-  const MAX_ATTEMPTS = 3;
+  let attempts = 0;
+const MAX_ATTEMPTS = 3;
 
-  if (attempts >= MAX_ATTEMPTS) {
-    optionsContainer.innerHTML = "<p style='color:#ff6b6b;'>You have used all attempts for this question.</p>";
-    return;
-  }
+options.split(",").forEach(opt => {
+  const btn = document.createElement("button");
+  btn.textContent = opt;
+  btn.className = "option-btn";
 
-  options.split(",").forEach(opt => {
-    const btn = document.createElement("button");
-    btn.textContent = opt;
-    btn.className = "option-btn";
+  btn.onclick = () => {
+    attempts++;
 
-    btn.onclick = () => {
-      if (opt === answer) {
-        payBtn.disabled = false;
-        btn.classList.add("correct");
-        sessionStorage.removeItem("skillAttempts");
+    if (opt === answer) {
+      payBtn.disabled = false;
+      btn.classList.add("correct");
+      document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+    } else {
+      btn.classList.add("wrong");
+
+      if (attempts >= MAX_ATTEMPTS) {
+        alert("Too many incorrect attempts. Please refresh the page to try again.");
+        document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
       } else {
-        attempts++;
-        sessionStorage.setItem("skillAttempts", attempts);
-        btn.classList.add("wrong");
-
-        if (attempts >= MAX_ATTEMPTS) {
-          alert("Incorrect. You have used all available attempts.");
-          optionsContainer.innerHTML = "<p style='color:#ff6b6b;'>No attempts remaining.</p>";
-        } else {
-          alert(`Incorrect. Attempts remaining: ${MAX_ATTEMPTS - attempts}`);
-        }
+        alert(`Incorrect answer. ${MAX_ATTEMPTS - attempts} attempt(s) remaining.`);
       }
-    };
+    }
+  };
 
-    optionsContainer.appendChild(btn);
-  });
+  optionsContainer.appendChild(btn);
+});
 
-  payBtn.onclick = async () => {
+
+ payBtn.onclick = async () => {
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting…";
 
