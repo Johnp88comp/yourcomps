@@ -70,21 +70,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const priceId = params.get("priceId");
   const title   = params.get("title");
   const qid     = params.get("qid");
-  const entryId = params.get("entryId");
 
-  if (!priceId || !qid || !entryId || !QUESTION_POOL[qid]) {
+  if (!priceId || !qid || !QUESTION_POOL[qid]) {
     alert("Invalid competition link");
     return;
   }
 
-  const questionData = QUESTION_POOL[qid];
-  const ATTEMPT_KEY = `attempts_${priceId}_${entryId}`;
+  // ✅ Generate entry ID INSIDE checkout
+  const entryId = `${priceId}_${Date.now()}`;
+
+  const ATTEMPT_KEY = `attempts_${entryId}`;
   const MAX_ATTEMPTS = 3;
 
   let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY) || 0);
 
+  const data = QUESTION_POOL[qid];
+
   document.getElementById("summary").textContent = title;
-  document.getElementById("question").textContent = questionData.question;
+  document.getElementById("question").textContent = data.question;
 
   const optionsContainer = document.getElementById("options");
   const payBtn = document.getElementById("payBtn");
@@ -92,19 +95,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (attempts >= MAX_ATTEMPTS) {
     optionsContainer.innerHTML =
-      "<p style='color:#ff6b6b;'>You have used all attempts for this entry. Please return to the competition page.</p>";
+      "<p style='color:#ff6b6b;'>You have used all attempts for this entry.</p>";
     return;
   }
 
-  questionData.options.forEach(opt => {
+  data.options.forEach(opt => {
     const btn = document.createElement("button");
     btn.textContent = opt;
     btn.className = "option-btn";
 
     btn.onclick = () => {
-      if (opt === questionData.answer) {
-        payBtn.disabled = false;
+      if (opt === data.answer) {
         btn.classList.add("correct");
+        payBtn.disabled = false;
         sessionStorage.removeItem(ATTEMPT_KEY);
       } else {
         attempts++;
@@ -114,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (attempts >= MAX_ATTEMPTS) {
           alert("Incorrect. You have used all attempts.");
           optionsContainer.innerHTML =
-            "<p style='color:#ff6b6b;'>No attempts remaining for this entry.</p>";
+            "<p style='color:#ff6b6b;'>No attempts remaining.</p>";
         } else {
           alert(`Incorrect. Attempts remaining: ${MAX_ATTEMPTS - attempts}`);
         }
@@ -137,8 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     });
 
-    const data = await res.json();
-    if (data.url) window.location.href = data.url;
+    const json = await res.json();
+    if (json.url) window.location.href = json.url;
   };
 
 });
