@@ -66,8 +66,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const priceId = params.get("priceId");
   const title   = params.get("title");
   const qid     = params.get("qid");
+  const visitId = params.get("v");   // 🔑 NEW
 
-  if (!priceId || !qid || !QUESTION_POOL[qid]) {
+  if (!priceId || !qid || !visitId || !QUESTION_POOL[qid]) {
     alert("Invalid competition link");
     return;
   }
@@ -75,7 +76,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const { question, answer, options } = QUESTION_POOL[qid];
 
   const ATTEMPT_KEY = `attempts_${priceId}_${qid}`;
+  const VISIT_KEY   = `visit_${priceId}_${qid}`;
   const MAX_ATTEMPTS = 3;
+
+  // ✅ Reset attempts ONLY when coming from a NEW Enter click
+  if (sessionStorage.getItem(VISIT_KEY) !== visitId) {
+    sessionStorage.setItem(VISIT_KEY, visitId);
+    sessionStorage.removeItem(ATTEMPT_KEY);
+  }
 
   let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY) || 0);
 
@@ -102,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
         payBtn.disabled = false;
         btn.classList.add("correct");
         sessionStorage.removeItem(ATTEMPT_KEY);
+        sessionStorage.removeItem(VISIT_KEY);
       } else {
         attempts++;
         sessionStorage.setItem(ATTEMPT_KEY, attempts);
