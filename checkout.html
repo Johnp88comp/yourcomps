@@ -17,7 +17,6 @@
   <div class="card checkout-card">
 
     <h2 class="card-title">Secure Checkout</h2>
-
     <p id="summary" class="checkout-summary"></p>
 
     <div class="form-group">
@@ -37,10 +36,7 @@
       <button id="payBtn" class="btn btn-primary" disabled>
         Continue to Stripe Payment
       </button>
-
-      <a href="/" class="btn btn-secondary">
-        Back to YourComps
-      </a>
+      <a href="/" class="btn btn-secondary">Back to YourComps</a>
     </div>
 
   </div>
@@ -48,7 +44,7 @@
 
 <script>
 /* ===============================
-   QUESTION POOL
+   SAFE QUESTION POOL
    =============================== */
 const QUESTION_POOL = {
   time_math: {
@@ -76,18 +72,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // ✅ Generate entry ID INSIDE checkout
-  const entryId = `${priceId}_${Date.now()}`;
+  const { question, answer, options } = QUESTION_POOL[qid];
 
-  const ATTEMPT_KEY = `attempts_${entryId}`;
+  const ATTEMPT_KEY = `attempts_${priceId}_${qid}`;
   const MAX_ATTEMPTS = 3;
 
   let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY) || 0);
 
-  const data = QUESTION_POOL[qid];
-
   document.getElementById("summary").textContent = title;
-  document.getElementById("question").textContent = data.question;
+  document.getElementById("question").textContent = question;
 
   const optionsContainer = document.getElementById("options");
   const payBtn = document.getElementById("payBtn");
@@ -95,19 +88,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (attempts >= MAX_ATTEMPTS) {
     optionsContainer.innerHTML =
-      "<p style='color:#ff6b6b;'>You have used all attempts for this entry.</p>";
+      "<p class='error'>You have used all attempts for this entry. Please return to the competition page.</p>";
     return;
   }
 
-  data.options.forEach(opt => {
+  options.forEach(opt => {
     const btn = document.createElement("button");
     btn.textContent = opt;
     btn.className = "option-btn";
 
     btn.onclick = () => {
-      if (opt === data.answer) {
-        btn.classList.add("correct");
+      if (opt === answer) {
         payBtn.disabled = false;
+        btn.classList.add("correct");
         sessionStorage.removeItem(ATTEMPT_KEY);
       } else {
         attempts++;
@@ -115,9 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.classList.add("wrong");
 
         if (attempts >= MAX_ATTEMPTS) {
-          alert("Incorrect. You have used all attempts.");
           optionsContainer.innerHTML =
-            "<p style='color:#ff6b6b;'>No attempts remaining.</p>";
+            "<p class='error'>No attempts remaining for this entry.</p>";
         } else {
           alert(`Incorrect. Attempts remaining: ${MAX_ATTEMPTS - attempts}`);
         }
@@ -140,8 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     });
 
-    const json = await res.json();
-    if (json.url) window.location.href = json.url;
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
   };
 
 });
