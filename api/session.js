@@ -57,66 +57,25 @@ function writeSession(res, session) {
   res.setHeader("Set-Cookie", cookie);
 }
 
-function keyFor(priceId, qid) {
-  return `${priceId}__${qid}`;
+function newSession() {
+  return {
+    uid: crypto.randomBytes(16).toString("hex"),
+    attempts: {} // key -> { visitId, attempts, passed }
+  };
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
 
   if (!process.env.ATTEMPT_SIGNING_SECRET) {
     return res.status(500).json({ error: "Missing ATTEMPT_SIGNING_SECRET env var" });
   }
 
   let session = readSession(req);
-  if (!session) return res.status(401).json({ error: "No valid session (open checkout again)" });
-
-  const { action, priceId, qid, visitId } = req.body || {};
-  if (!action || !priceId || !qid || !visitId) {
-    return res.status(400).json({ error: "Missing action/priceId/qid/visitId" });
-  }
-
-  const MAX_ATTEMPTS = 3;
-  const k = keyFor(priceId, qid);
-
-  if (!session.attempts) session.attempts = {};
-  if (!session.attempts[k]) session.attempts[k] = { visitId, attempts: 0, passed: false };
-
-  const state = session.attempts[k];
-
-  // NEW ENTRY (new click from home) resets server-side attempts
-  if (state.visitId !== visitId) {
-    session.attempts[k] = { visitId, attempts: 0, passed: false };
-  }
-
-  const cur = session.attempts[k];
-
-  if (action === "init") {
+  if (!session) {
+    session = newSession();
     writeSession(res, session);
-    return res.status(200).json({
-      attempts: cur.attempts,
-      remaining: Math.max(0, MAX_ATTEMPTS - cur.attempts),
-      locked: cur.attempts >= MAX_ATTEMPTS,
-      passed: !!cur.passed,
-    });
   }
 
-  if (action === "fail") {
-    if (cur.attempts < MAX_ATTEMPTS && !cur.passed) cur.attempts += 1;
-    writeSession(res, session);
-    return res.status(200).json({
-      attempts: cur.attempts,
-      remaining: Math.max(0, MAX_ATTEMPTS - cur.attempts),
-      locked: cur.attempts >= MAX_ATTEMPTS,
-      passed: !!cur.passed,
-    });
-  }
-
-  if (action === "success") {
-    cur.passed = true;
-    writeSession(res, session);
-    return res.status(200).json({ ok: true, passed: true });
-  }
-
-  return res.status(400).json({ error: "Invalid action" });
+  return res.status(200).json({ ok: true });
 }

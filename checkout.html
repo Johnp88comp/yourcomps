@@ -43,14 +43,6 @@
 </main>
 
 <script>
-const SESSION_ID_KEY = "yourcomps_session_id";
-
-let sessionId = sessionStorage.getItem(SESSION_ID_KEY);
-if (!sessionId) {
-  sessionId = crypto.randomUUID();
-  sessionStorage.setItem(SESSION_ID_KEY, sessionId);
-}
-
 /* ===============================
    SAFE QUESTION POOL
    =============================== */
@@ -67,14 +59,13 @@ const QUESTION_POOL = {
   }
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-
+document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
 
   const priceId = params.get("priceId");
-  const title   = params.get("title");
+  const title   = params.get("title") || "Competition Entry";
   const qid     = params.get("qid");
-  const visitId = params.get("v");   // 🔑 NEW
+  const visitId = params.get("v"); // must be added by index.html
 
   if (!priceId || !qid || !visitId || !QUESTION_POOL[qid]) {
     alert("Invalid competition link");
@@ -83,19 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const { question, answer, options } = QUESTION_POOL[qid];
 
-  const ATTEMPT_KEY = `attempts_${priceId}_${qid}`;
-  const VISIT_KEY   = `visit_${priceId}_${qid}`;
-  const MAX_ATTEMPTS = 3;
-
-  // ✅ Reset attempts ONLY when coming from a NEW Enter click
-  if (sessionStorage.getItem(VISIT_KEY) !== visitId) {
-     sessionStorage.removeItem(ATTEMPT_KEY);
-     // keep VISIT_KEY so refresh does not reset question
-       ;
-        }
-
-  let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY) || 0);
-
   document.getElementById("summary").textContent = title;
   document.getElementById("question").textContent = question;
 
@@ -103,34 +81,77 @@ document.addEventListener("DOMContentLoaded", () => {
   const payBtn = document.getElementById("payBtn");
   const qty = document.getElementById("qty");
 
-  if (attempts >= MAX_ATTEMPTS) {
+  // 1) Ensure server session cookie exists
+  await fetch("/api/session", { method: "GET" });
+
+  // 2) Initialise this entry (server decides whether to reset attempts based on visitId)
+  const initRes = await fetch("/api/record-attempt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "init", priceId, qid, visitId })
+  });
+  const initData = await initRes.json();
+
+  if (!initRes.ok) {
+    alert(initData.error || "Could not initialise entry");
+    return;
+  }
+
+  if (initData.locked) {
     optionsContainer.innerHTML =
       "<p class='error'>You have used all attempts for this entry. Please return to the competition page.</p>";
     return;
   }
 
+  if (initData.passed) {
+    // If they already passed, allow payment without re-answering
+    payBtn.disabled = false;
+  }
+
+  // Render options
+  optionsContainer.innerHTML = "";
   options.forEach(opt => {
     const btn = document.createElement("button");
+    btn.type = "button";
     btn.textContent = opt;
     btn.className = "option-btn";
 
-    btn.onclick = () => {
-      if (opt === answer) {
-        payBtn.disabled = false;
-        btn.classList.add("correct");
-        sessionStorage.removeItem(ATTEMPT_KEY);
-        sessionStorage.removeItem(VISIT_KEY);
-      } else {
-        attempts++;
-        sessionStorage.setItem(ATTEMPT_KEY, attempts);
-        btn.classList.add("wrong");
+    btn.onclick = async () => {
+      if (payBtn.disabled === false) return; // already passed
 
-        if (attempts >= MAX_ATTEMPTS) {
-          optionsContainer.innerHTML =
-            "<p class='error'>No attempts remaining for this entry.</p>";
-        } else {
-          alert(`Incorrect. Attempts remaining: ${MAX_ATTEMPTS - attempts}`);
-        }
+      if (opt === answer) {
+        btn.classList.add("correct");
+
+        const okRes = await fetch("/api/record-attempt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "success", priceId, qid, visitId })
+        });
+
+        if (okRes.ok) payBtn.disabled = false;
+        return;
+      }
+
+      // Wrong answer → record server-side
+      btn.classList.add("wrong");
+
+      const failRes = await fetch("/api/record-attempt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "fail", priceId, qid, visitId })
+      });
+      const failData = await failRes.json();
+
+      if (!failRes.ok) {
+        alert(failData.error || "Error recording attempt");
+        return;
+      }
+
+      if (failData.locked) {
+        optionsContainer.innerHTML =
+          "<p class='error'>No attempts remaining for this entry.</p>";
+      } else {
+        alert(`Incorrect. Attempts remaining: ${failData.remaining}`);
       }
     };
 
@@ -141,23 +162,26 @@ document.addEventListener("DOMContentLoaded", () => {
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting…";
 
-        const res = await fetch("/api/create-checkout-session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-           priceId,
-           quantity: Number(qty.value || 1),
-           qid,
-           sessionId
-       })
-
-       });
-
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        priceId,
+        quantity: Number(qty.value || 1),
+        qid,
+        visitId
+      })
+    });
 
     const data = await res.json();
-    if (data.url) window.location.href = data.url;
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert(data.error || "Checkout failed");
+      payBtn.disabled = false;
+      payBtn.textContent = "Continue to Stripe Payment";
+    }
   };
-
 });
 </script>
 
