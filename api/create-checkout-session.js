@@ -1,31 +1,13 @@
 import Stripe from "stripe";
-import crypto from "crypto";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 /**
- * In-memory attempt store
- * (safe for now, upgradeable later)
+ * TEMP server-side attempt store
+ * (Resets on redeploy – OK for now)
  */
-const ATTEMPT_LIMIT = 3;
-const attemptsStore = new Map();
-
-/**
- * Get or create a session ID
- */
-function getSessionId(req, res) {
-  let sid = req.cookies?.sid;
-
-  if (!sid) {
-    sid = crypto.randomUUID();
-    res.setHeader(
-      "Set-Cookie",
-      `sid=${sid}; Path=/; HttpOnly; SameSite=Lax; Secure`
-    );
-  }
-
-  return sid;
-}
+const ATTEMPT_STORE = {};
+const MAX_ATTEMPTS = 3;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -33,37 +15,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { priceId, quantity = 1, qid, passed } = req.body;
+    const { priceId, quantity = 1, qid, sessionId } = req.body;
 
-    if (!priceId || !qid) {
-      return res.status(400).json({ error: "Missing data" });
+    if (!priceId || !qid || !sessionId) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const sessionId = getSessionId(req, res);
-    const key = `${sessionId}:${priceId}:${qid}`;
+    const attemptKey = `${sessionId}_${priceId}_${qid}`;
 
-    const record = attemptsStore.get(key) || { attempts: 0 };
+    const attempts = ATTEMPT_STORE[attemptKey] || 0;
 
-    // ❌ Block if attempts exhausted
-    if (record.attempts >= ATTEMPT_LIMIT) {
+    if (attempts >= MAX_ATTEMPTS) {
       return res.status(403).json({
-        error: "Maximum attempts exceeded",
+        error: "Skill question attempts exceeded"
       });
     }
 
-    // ❌ If answer failed, record attempt and block checkout
-    if (!passed) {
-      record.attempts += 1;
-      attemptsStore.set(key, record);
-
-      return res.status(403).json({
-        error: "Incorrect answer",
-        attemptsRemaining: ATTEMPT_LIMIT - record.attempts,
-      });
-    }
-
-    // ✅ Passed → reset attempts
-    attemptsStore.delete(key);
+    // 🔐 Lock attempts once checkout is allowed
+    ATTEMPT_STORE[attemptKey] = MAX_ATTEMPTS;
 
     const baseUrl = "https://yourcomps.vercel.app";
 
@@ -73,17 +42,22 @@ export default async function handler(req, res) {
       line_items: [
         {
           price: priceId,
-          quantity,
-        },
+          quantity
+        }
       ],
       success_url: `${baseUrl}/success.html`,
       cancel_url: `${baseUrl}/cancel.html`,
+      metadata: {
+        competition_price: priceId,
+        question_id: qid,
+        session_id: sessionId
+      }
     });
 
-    return res.status(200).json({ url: session.url });
+    res.status(200).json({ url: session.url });
 
   } catch (err) {
     console.error("Stripe error:", err);
-    return res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 }

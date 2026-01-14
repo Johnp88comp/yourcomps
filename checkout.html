@@ -43,6 +43,14 @@
 </main>
 
 <script>
+const SESSION_ID_KEY = "yourcomps_session_id";
+
+let sessionId = sessionStorage.getItem(SESSION_ID_KEY);
+if (!sessionId) {
+  sessionId = crypto.randomUUID();
+  sessionStorage.setItem(SESSION_ID_KEY, sessionId);
+}
+
 /* ===============================
    SAFE QUESTION POOL
    =============================== */
@@ -137,11 +145,12 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-          priceId,
-          quantity: Number(qty.value || 1),
-          qid,
-          passed: true
-         })
+           priceId,
+           quantity: Number(qty.value || 1),
+           qid,
+           sessionId
+       })
+
        });
 
 
