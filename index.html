@@ -55,11 +55,12 @@
         <span class="pill">£2.00 per ticket</span>
         <div class="card-actions">
           <a
-            <a class="btn-cta"
-              href="checkout.html?priceId=price_1SoPse2fDjX9ON8hXaQknmrU&title=Rolex%20Submariner&qid=time_math&v=1"
-              onclick="this.href=this.href.replace('v=1','v='+Date.now())">
-             Enter
-           </a>
+            <a class="btn-cta enter-btn"
+             href="#"
+             data-price="price_1SoPse2fDjX9ON8hXaQknmrU"
+             data-title="Rolex Submariner">
+            Enter
+          </a>
 
         </div>
       </div>
@@ -108,6 +109,27 @@ document.addEventListener("DOMContentLoaded", () => {
   if (year) year.textContent = new Date().getFullYear();
 });
 </script>
+
+<script>
+const QUESTION_IDS = ["time_math", "simple_addition"];
+
+document.querySelectorAll(".enter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const priceId = btn.dataset.price;
+    const title = encodeURIComponent(btn.dataset.title);
+
+    // 🎲 Pick random question
+    const qid = QUESTION_IDS[Math.floor(Math.random() * QUESTION_IDS.length)];
+
+    // 🆔 Unique visit token
+    const v = Date.now();
+
+    window.location.href =
+      `checkout.html?priceId=${priceId}&title=${title}&qid=${qid}&v=${v}`;
+  });
+});
+</script>
+
 
 </body>
 </html>

@@ -81,9 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ✅ Reset attempts ONLY when coming from a NEW Enter click
   if (sessionStorage.getItem(VISIT_KEY) !== visitId) {
-    sessionStorage.setItem(VISIT_KEY, visitId);
-    sessionStorage.removeItem(ATTEMPT_KEY);
-  }
+     sessionStorage.removeItem(ATTEMPT_KEY);
+     // keep VISIT_KEY so refresh does not reset question
+       ;
+        }
 
   let attempts = Number(sessionStorage.getItem(ATTEMPT_KEY) || 0);
 
