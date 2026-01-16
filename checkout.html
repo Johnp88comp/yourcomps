@@ -43,121 +43,91 @@
 </main>
 
 <script>
-/* ===============================
-   SAFE QUESTION POOL
-   =============================== */
-const QUESTION_POOL = {
-  time_math: {
-    question: "If a train leaves at 12:00 and takes 30 minutes, when does it arrive?",
-    answer: "12:30",
-    options: ["12:15", "12:30", "12:45", "13:00"]
-  },
-  simple_addition: {
-    question: "What is 7 + 5?",
-    answer: "12",
-    options: ["10", "11", "12", "13"]
-  }
-};
-
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
 
   const priceId = params.get("priceId");
-  const title   = params.get("title") || "Competition Entry";
+  const title   = params.get("title");
   const qid     = params.get("qid");
-  const visitId = params.get("v"); // must be added by index.html
+  const visitId = params.get("v");
 
-  if (!priceId || !qid || !visitId || !QUESTION_POOL[qid]) {
+  if (!priceId || !qid || !visitId) {
     alert("Invalid competition link");
     return;
   }
 
-  const { question, answer, options } = QUESTION_POOL[qid];
-
-  document.getElementById("summary").textContent = title;
-  document.getElementById("question").textContent = question;
-
-  const optionsContainer = document.getElementById("options");
+  const summaryEl = document.getElementById("summary");
+  const questionEl = document.getElementById("question");
+  const optionsEl = document.getElementById("options");
   const payBtn = document.getElementById("payBtn");
-  const qty = document.getElementById("qty");
+  const qtyInput = document.getElementById("qty");
 
-  // 1) Ensure server session cookie exists
-  await fetch("/api/session", { method: "GET" });
+  summaryEl.textContent = title;
 
-  // 2) Initialise this entry (server decides whether to reset attempts based on visitId)
-  const initRes = await fetch("/api/record-attempt", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "init", priceId, qid, visitId })
-  });
-  const initData = await initRes.json();
+  // 1️⃣ Fetch question from server
+  let questionData;
+  try {
+    const res = await fetch("/api/get-questions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ priceId, qid, visitId })
+    });
 
-  if (!initRes.ok) {
-    alert(initData.error || "Could not initialise entry");
+    questionData = await res.json();
+
+    if (!res.ok) {
+      optionsEl.innerHTML = `<p class="error">${questionData.error}</p>`;
+      return;
+    }
+  } catch {
+    optionsEl.innerHTML = "<p class='error'>Unable to load question.</p>";
     return;
   }
 
-  if (initData.locked) {
-    optionsContainer.innerHTML =
-      "<p class='error'>You have used all attempts for this entry. Please return to the competition page.</p>";
-    return;
-  }
+  questionEl.textContent = questionData.question;
 
-  if (initData.passed) {
-    // If they already passed, allow payment without re-answering
-    payBtn.disabled = false;
-  }
-
-  // Render options
-  optionsContainer.innerHTML = "";
-  options.forEach(opt => {
+  // 2️⃣ Render options
+  questionData.options.forEach(option => {
     const btn = document.createElement("button");
-    btn.type = "button";
-    btn.textContent = opt;
+    btn.textContent = option;
     btn.className = "option-btn";
 
     btn.onclick = async () => {
-      if (payBtn.disabled === false) return; // already passed
+      btn.disabled = true;
 
-      if (opt === answer) {
-        btn.classList.add("correct");
-
-        const okRes = await fetch("/api/record-attempt", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "success", priceId, qid, visitId })
-        });
-
-        if (okRes.ok) payBtn.disabled = false;
-        return;
-      }
-
-      // Wrong answer → record server-side
-      btn.classList.add("wrong");
-
-      const failRes = await fetch("/api/record-attempt", {
+      const res = await fetch("/api/validate-answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "fail", priceId, qid, visitId })
+        body: JSON.stringify({
+          priceId,
+          qid,
+          visitId,
+          answer: option
+        })
       });
-      const failData = await failRes.json();
 
-      if (!failRes.ok) {
-        alert(failData.error || "Error recording attempt");
-        return;
-      }
+      const result = await res.json();
 
-      if (failData.locked) {
-        optionsContainer.innerHTML =
-          "<p class='error'>No attempts remaining for this entry.</p>";
+      if (res.ok && result.passed) {
+        btn.classList.add("correct");
+        payBtn.disabled = false;
       } else {
-        alert(`Incorrect. Attempts remaining: ${failData.remaining}`);
+        btn.classList.add("wrong");
+
+        if (result.locked) {
+          optionsEl.innerHTML =
+            "<p class='error'>No attempts remaining. Please return to the competition page.</p>";
+        } else {
+          alert(result.error || "Incorrect answer");
+          btn.disabled = false;
+        }
       }
     };
 
-    optionsContainer.appendChild(btn);
+    optionsEl.appendChild(btn);
   });
 
+  // 3️⃣ Stripe checkout (server-enforced)
   payBtn.onclick = async () => {
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting…";
@@ -167,7 +137,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         priceId,
-        quantity: Number(qty.value || 1),
+        quantity: Number(qtyInput.value || 1),
         qid,
         visitId
       })
@@ -177,13 +147,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (data.url) {
       window.location.href = data.url;
     } else {
-      alert(data.error || "Checkout failed");
+      alert(data.error || "Unable to start checkout");
       payBtn.disabled = false;
       payBtn.textContent = "Continue to Stripe Payment";
     }
   };
 });
 </script>
+
 
 </body>
 </html>
