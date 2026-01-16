@@ -53,55 +53,76 @@ document.addEventListener("DOMContentLoaded", async () => {
   const visitId = params.get("v");
 
   if (!priceId || !qid || !visitId) {
-    alert("Invalid competition link");
+    alert("Skill question required");
     return;
   }
 
-  document.getElementById("summary").textContent = title;
-
+  const summaryEl  = document.getElementById("summary");
   const questionEl = document.getElementById("question");
   const optionsEl  = document.getElementById("options");
   const payBtn     = document.getElementById("payBtn");
-  const qty        = document.getElementById("qty");
+  const qtyInput   = document.getElementById("qty");
 
-  // 🔥 FETCH QUESTION FROM SERVER
-  const res = await fetch(`/api/get-questions?qid=${encodeURIComponent(qid)}`);
-  const data = await res.json();
+  summaryEl.textContent = decodeURIComponent(title);
 
-  if (!data || !data.question || !Array.isArray(data.options)) {
-    questionEl.textContent = "Invalid question";
+  /* -----------------------------
+     FETCH QUESTION FROM SERVER
+  ------------------------------ */
+  const qRes = await fetch("/api/get-questions?qid=" + encodeURIComponent(qid));
+  const qData = await qRes.json();
+
+  if (!qRes.ok) {
+    optionsEl.innerHTML = "<p class='error'>Invalid question</p>";
     return;
   }
 
-  questionEl.textContent = data.question;
+  questionEl.textContent = qData.question;
 
-  // Render options
-  data.options.forEach(opt => {
+  /* -----------------------------
+     RENDER OPTIONS
+  ------------------------------ */
+  qData.options.forEach(opt => {
     const btn = document.createElement("button");
-    btn.textContent = opt;
     btn.className = "option-btn";
+    btn.textContent = opt;
 
     btn.onclick = async () => {
+      btn.disabled = true;
+
       const res = await fetch("/api/validate-answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ qid, answer: opt, visitId })
+        body: JSON.stringify({
+          priceId,
+          qid,
+          visitId,
+          answer: opt
+        })
       });
 
-      const result = await res.json();
+      const data = await res.json();
 
-      if (result.correct) {
+      if (data.correct) {
         btn.classList.add("correct");
         payBtn.disabled = false;
       } else {
         btn.classList.add("wrong");
-        alert(result.error || "Incorrect answer");
+
+        if (data.locked) {
+          optionsEl.innerHTML =
+            "<p class='error'>Too many failed attempts. Entry locked.</p>";
+        } else {
+          alert(`Incorrect. Attempts remaining: ${data.remaining}`);
+        }
       }
     };
 
     optionsEl.appendChild(btn);
   });
 
+  /* -----------------------------
+     STRIPE BUTTON (UNCHANGED)
+  ------------------------------ */
   payBtn.onclick = async () => {
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting…";
@@ -111,7 +132,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         priceId,
-        quantity: Number(qty.value || 1),
+        quantity: Number(qtyInput.value || 1),
         qid,
         visitId
       })
@@ -119,11 +140,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const data = await res.json();
     if (data.url) window.location.href = data.url;
-    else alert(data.error || "Unable to start payment");
   };
 
 });
 </script>
+
 
 </body>
 </html>
