@@ -2,22 +2,24 @@ import Stripe from "stripe";
 import crypto from "crypto";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-// 🔐 Used to verify skill-question pass tokens
 const ATTEMPT_SIGNING_SECRET = process.env.ATTEMPT_SIGNING_SECRET;
 
-function verifyToken({ priceId, qid, token }) {
-  if (!priceId || !qid || !token) return false;
+function verifyToken({ priceId, qid, visitId, token }) {
+  if (!priceId || !qid || !visitId || !token) return false;
 
   const expected = crypto
     .createHmac("sha256", ATTEMPT_SIGNING_SECRET)
-    .update(`${priceId}:${qid}`)
+    .update(`${priceId}:${qid}:${visitId}`)
     .digest("hex");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(expected),
-    Buffer.from(token)
-  );
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(expected, "hex"),
+      Buffer.from(token, "hex")
+    );
+  } catch {
+    return false;
+  }
 }
 
 export default async function handler(req, res) {
@@ -26,14 +28,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { priceId, quantity = 1, qid, token } = req.body || {};
+    const {
+      priceId,
+      quantity = 1,
+      qid,
+      visitId,
+      token
+    } = req.body || {};
 
-    if (!priceId || !qid || !token) {
+    if (!priceId || !qid || !visitId || !token) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // 🚫 HARD BLOCK: skill question must be passed
-    const valid = verifyToken({ priceId, qid, token });
+    // 🔒 HARD BLOCK — must have passed skill question
+    const valid = verifyToken({ priceId, qid, visitId, token });
     if (!valid) {
       return res.status(403).json({ error: "Skill verification failed" });
     }
