@@ -65,10 +65,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   summaryEl.textContent = decodeURIComponent(title);
 
+  let verificationToken = null;
+
   /* -----------------------------
-     FETCH QUESTION FROM SERVER
+     FETCH QUESTION (SERVER)
   ------------------------------ */
-  const qRes = await fetch("/api/get-questions?qid=" + encodeURIComponent(qid));
+  const qRes = await fetch(`/api/get-questions?qid=${encodeURIComponent(qid)}`);
   const qData = await qRes.json();
 
   if (!qRes.ok) {
@@ -79,7 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   questionEl.textContent = qData.question;
 
   /* -----------------------------
-     RENDER OPTIONS
+     RENDER ANSWERS
   ------------------------------ */
   qData.options.forEach(opt => {
     const btn = document.createElement("button");
@@ -87,7 +89,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     btn.textContent = opt;
 
     btn.onclick = async () => {
-      btn.disabled = true;
+      // Disable all options during validation
+      document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
 
       const res = await fetch("/api/validate-answer", {
         method: "POST",
@@ -102,8 +105,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const data = await res.json();
 
-      if (data.correct) {
+      if (data.correct === true) {
         btn.classList.add("correct");
+        verificationToken = data.token; // 🔐 STORE SIGNED TOKEN
         payBtn.disabled = false;
       } else {
         btn.classList.add("wrong");
@@ -113,6 +117,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             "<p class='error'>Too many failed attempts. Entry locked.</p>";
         } else {
           alert(`Incorrect. Attempts remaining: ${data.remaining}`);
+          // Re-enable buttons
+          document.querySelectorAll(".option-btn").forEach(b => b.disabled = false);
         }
       }
     };
@@ -121,7 +127,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   /* -----------------------------
-     STRIPE BUTTON (UNCHANGED)
+     STRIPE (SECURE)
   ------------------------------ */
   payBtn.onclick = async () => {
     payBtn.disabled = true;
@@ -134,17 +140,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         priceId,
         quantity: Number(qtyInput.value || 1),
         qid,
-        visitId
+        token: verificationToken // 🔐 REQUIRED
       })
     });
 
     const data = await res.json();
     if (data.url) window.location.href = data.url;
+    else alert(data.error || "Payment error");
   };
 
 });
 </script>
-
 
 </body>
 </html>
