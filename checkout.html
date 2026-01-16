@@ -44,6 +44,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
+
   const params = new URLSearchParams(window.location.search);
 
   const priceId = params.get("priceId");
@@ -56,78 +57,51 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  const summaryEl = document.getElementById("summary");
+  document.getElementById("summary").textContent = title;
+
   const questionEl = document.getElementById("question");
-  const optionsEl = document.getElementById("options");
-  const payBtn = document.getElementById("payBtn");
-  const qtyInput = document.getElementById("qty");
+  const optionsEl  = document.getElementById("options");
+  const payBtn     = document.getElementById("payBtn");
+  const qty        = document.getElementById("qty");
 
-  summaryEl.textContent = title;
+  // 🔥 FETCH QUESTION FROM SERVER
+  const res = await fetch(`/api/get-questions?qid=${encodeURIComponent(qid)}`);
+  const data = await res.json();
 
-  // 1️⃣ Fetch question from server
-  let questionData;
-  try {
-    const res = await fetch("/api/get-questions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priceId, qid, visitId })
-    });
-
-    questionData = await res.json();
-
-    if (!res.ok) {
-      optionsEl.innerHTML = `<p class="error">${questionData.error}</p>`;
-      return;
-    }
-  } catch {
-    optionsEl.innerHTML = "<p class='error'>Unable to load question.</p>";
+  if (!data || !data.question || !Array.isArray(data.options)) {
+    questionEl.textContent = "Invalid question";
     return;
   }
 
-  questionEl.textContent = questionData.question;
+  questionEl.textContent = data.question;
 
-  // 2️⃣ Render options
-  questionData.options.forEach(option => {
+  // Render options
+  data.options.forEach(opt => {
     const btn = document.createElement("button");
-    btn.textContent = option;
+    btn.textContent = opt;
     btn.className = "option-btn";
 
     btn.onclick = async () => {
-      btn.disabled = true;
-
       const res = await fetch("/api/validate-answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceId,
-          qid,
-          visitId,
-          answer: option
-        })
+        body: JSON.stringify({ qid, answer: opt, visitId })
       });
 
       const result = await res.json();
 
-      if (res.ok && result.passed) {
+      if (result.correct) {
         btn.classList.add("correct");
         payBtn.disabled = false;
       } else {
         btn.classList.add("wrong");
-
-        if (result.locked) {
-          optionsEl.innerHTML =
-            "<p class='error'>No attempts remaining. Please return to the competition page.</p>";
-        } else {
-          alert(result.error || "Incorrect answer");
-          btn.disabled = false;
-        }
+        alert(result.error || "Incorrect answer");
       }
     };
 
     optionsEl.appendChild(btn);
   });
 
-  // 3️⃣ Stripe checkout (server-enforced)
   payBtn.onclick = async () => {
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting…";
@@ -137,24 +111,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         priceId,
-        quantity: Number(qtyInput.value || 1),
+        quantity: Number(qty.value || 1),
         qid,
         visitId
       })
     });
 
     const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert(data.error || "Unable to start checkout");
-      payBtn.disabled = false;
-      payBtn.textContent = "Continue to Stripe Payment";
-    }
+    if (data.url) window.location.href = data.url;
+    else alert(data.error || "Unable to start payment");
   };
+
 });
 </script>
-
 
 </body>
 </html>
