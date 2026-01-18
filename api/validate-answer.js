@@ -1,11 +1,42 @@
 import crypto from "crypto";
 
-const SECRET = process.env.ATTEMPT_SIGNING_SECRET;
+/* ===============================
+   CONFIG
+=============================== */
 const MAX_ATTEMPTS = 3;
+const SECRET = process.env.ATTEMPT_SIGNING_SECRET;
 
-// very simple in-memory store (Vercel-safe for now)
-const attempts = new Map();
+/* ===============================
+   QUESTION BANK (SERVER ONLY)
+=============================== */
+const QUESTIONS = {
+  time_math: {
+    answer: "12:30"
+  },
+  simple_addition: {
+    answer: "12"
+  }
+};
 
+/* ===============================
+   IN-MEMORY STORE (OK for MVP)
+   (Vercel keeps this per instance)
+=============================== */
+const attemptsStore = new Map();
+
+/* ===============================
+   TOKEN SIGNING
+=============================== */
+function signToken(priceId, qid) {
+  return crypto
+    .createHmac("sha256", SECRET)
+    .update(`${priceId}:${qid}`)
+    .digest("hex");
+}
+
+/* ===============================
+   API HANDLER
+=============================== */
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -17,41 +48,43 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing data" });
   }
 
-  const key = `${priceId}:${qid}:${visitId}`;
-  const current = attempts.get(key) || 0;
-
-  if (current >= MAX_ATTEMPTS) {
-    return res.status(403).json({ locked: true });
+  const question = QUESTIONS[qid];
+  if (!question) {
+    return res.status(400).json({ error: "Invalid question" });
   }
 
-  // ⚠️ correct answers MUST match your question pool
-  const ANSWERS = {
-    time_math: "12:30",
-    simple_addition: "12"
-  };
+  const key = `${priceId}:${qid}:${visitId}`;
+  const record = attemptsStore.get(key) || { attempts: 0, locked: false };
 
-  if (ANSWERS[qid] !== answer) {
-    const next = current + 1;
-    attempts.set(key, next);
+  if (record.locked) {
+    return res.json({ correct: false, locked: true });
+  }
+
+  if (answer === question.answer) {
+    attemptsStore.delete(key);
 
     return res.json({
-      correct: false,
-      remaining: MAX_ATTEMPTS - next
+      correct: true,
+      token: signToken(priceId, qid)
     });
   }
 
-  // ✅ Correct — issue signed token
-  const token = crypto
-    .createHmac("sha256", SECRET)
-    .update(`${priceId}:${qid}:${visitId}`)
-    .digest("hex");
+  record.attempts += 1;
 
-  // cleanup
-  attempts.delete(key);
+  if (record.attempts >= MAX_ATTEMPTS) {
+    record.locked = true;
+    attemptsStore.set(key, record);
+
+    return res.json({
+      correct: false,
+      locked: true
+    });
+  }
+
+  attemptsStore.set(key, record);
 
   return res.json({
-    correct: true,
-    token,
-    visitId
+    correct: false,
+    remaining: MAX_ATTEMPTS - record.attempts
   });
 }
