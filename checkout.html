@@ -125,21 +125,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       const data = await res.json();
 
       if (data.correct === true) {
-       btn.classList.add("correct");
+      btn.classList.add("correct");
 
-       skillToken = data.token;
-       payBtn.disabled = false;
-       return;
-      }
-
-      // ❌ WRONG ANSWER
-      btn.classList.add("wrong");
-
-      if (data.locked) {
-      optionsEl.innerHTML =
-      "<p class='error'>Too many failed attempts. Entry locked.</p>";
+     skillToken = data.token;
+     payBtn.disabled = false;
      return;
-    }
+  }
+
+     // ❌ WRONG ANSWER
+     btn.classList.add("wrong");
+
+     if (data.locked) {
+     optionsEl.innerHTML =
+     "<p class='error'>Too many failed attempts. Entry locked.</p>";
+      return;
+     }
+
+// ✅ ONLY show remaining attempts if NOT locked
+alert(`Incorrect. Attempts remaining: ${data.remaining}`);
+document.querySelectorAll(".option-btn").forEach(b => b.disabled = false);
+
 
 // ✅ ONLY show remaining attempts if NOT locked
 alert(`Incorrect. Attempts remaining: ${data.remaining}`);
