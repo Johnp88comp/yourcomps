@@ -129,6 +129,20 @@ body {
   height: 200px;
   object-fit: cover;
 }
+/* ========= CARD META & ACTIONS (RESTORED) ========= */
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.card-actions {
+  margin-left: auto; /* pushes Enter button to the right */
+  display: flex;
+  align-items: center;
+}
 
 /* ========= CHECKOUT ========= */
 .checkout-card {
