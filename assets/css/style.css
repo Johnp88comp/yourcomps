@@ -25,12 +25,10 @@ body {
   background: linear-gradient(180deg, #0e141c, #0b0f14);
   border-bottom: 1px solid rgba(255,255,255,0.06);
   padding: 16px 24px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
 
 .logo {
   font-size: 22px;
@@ -38,7 +36,7 @@ body {
   color: #d4af37;
 }
 
-/* ===== DESKTOP NAV (DEFAULT) ===== */
+/* ========= NAV ========= */
 #mobileNav {
   display: flex;
   gap: 18px;
@@ -56,9 +54,8 @@ body {
   opacity: 1;
 }
 
-/* ===== BURGER BUTTON ===== */
 .menu-toggle {
-  display: none; /* hidden on desktop */
+  display: none;
   border: none;
   background: rgba(212,175,55,.18);
   color: #f5d76e;
@@ -72,14 +69,11 @@ body {
 /* ========= HERO ========= */
 .hero {
   min-height: 70vh;
-  min-height: 70dvh;
-  min-height: 70svh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 64px 24px;
-  padding-bottom: env(safe-area-inset-bottom);
   background:
     linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,.85)),
     url("https://images.unsplash.com/photo-1601597111158-2fceff292cdc?q=80&w=2000")
@@ -90,11 +84,6 @@ body {
   font-size: clamp(32px, 5vw, 54px);
   color: #f5d76e;
   margin-bottom: 12px;
-}
-
-.hero p {
-  max-width: 760px;
-  margin: 0 auto 24px;
 }
 
 /* ========= BUTTONS ========= */
@@ -126,7 +115,6 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
-  align-items: stretch;
 }
 
 .card {
@@ -142,50 +130,128 @@ body {
   object-fit: cover;
 }
 
-.card-title {
-  font-size: 18px;
-  padding: 14px 16px 6px;
-  color: #f5d76e;
-}
-
-.card-desc {
-  padding: 0 16px 14px;
-  font-size: 14px;
-}
-
-.card-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-}
-
-.card-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.pill {
-  background: rgba(212,175,55,.16);
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 13px;
-}
-
-/* ========= FOOTER ========= */
-.site-footer {
+/* ========= CHECKOUT ========= */
+.checkout-card {
+  max-width: 520px;
+  margin: 64px auto;
+  padding: 32px;
   text-align: center;
-  padding: 24px;
-  font-size: 13px;
-  opacity: 0.7;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: radial-gradient(
+    circle at top,
+    rgba(255,255,255,0.06),
+    rgba(0,0,0,0.92)
+  );
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
-/* ========= MOBILE NAV ========= */
+/* ========= FORM ========= */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.divider {
+  margin: 28px 0;
+  opacity: 0.3;
+}
+
+/* ========= SKILL QUESTION ========= */
+.skill-section {
+  margin-bottom: 32px;
+  pointer-events: auto; /* 🔑 ENSURE CLICKS WORK */
+}
+
+.skill-question {
+  margin: 14px 0 18px;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.option-btn {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  pointer-events: auto;
+}
+
+.option-btn:hover {
+  border-color: #d4af37;
+}
+
+.option-btn.correct {
+  background: linear-gradient(135deg, #f5d76e, #d4af37);
+  color: #000;
+  border-color: transparent;
+}
+
+.option-btn.wrong {
+  background: #7a1f1f;
+  border-color: #b33;
+}
+
+/* ========= STATUS ========= */
+.skill-status {
+  margin-top: 16px;
+  font-size: 0.95rem;
+}
+
+.skill-status.error {
+  color: #ff6b6b;
+}
+
+.skill-status.success {
+  color: #6ef5a3;
+}
+
+/* ========= CHECKOUT BUTTONS ========= */
+.button-group {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #f5c451, #d4a42c);
+  color: #000;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  background: #3a3a3a;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  padding: 14px 22px;
+  border-radius: 12px;
+  border: 1px solid #d4a42c;
+  color: #d4a42c;
+  text-decoration: none;
+}
+
+/* ========= MOBILE ========= */
 @media (max-width: 860px) {
   .menu-toggle {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
   }
 
   #mobileNav {
@@ -199,194 +265,17 @@ body {
     padding: 12px;
     flex-direction: column;
     gap: 10px;
-    z-index: 999;
   }
 
   #mobileNav.active {
     display: flex;
   }
-
-  #mobileNav a {
-    padding: 12px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.05);
-  }
 }
-.checkout-card {
-  max-width: 420px;
-  margin: auto;
+
+/* ========= FOOTER ========= */
+.site-footer {
   text-align: center;
+  padding: 24px;
+  font-size: 13px;
+  opacity: 0.7;
 }
-
-.checkout-title {
-  margin-bottom: 12px;
-}
-
-.checkout-summary {
-  opacity: 0.85;
-  margin-bottom: 20px;
-}
-
-.checkout-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-}
-
-.checkout-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-/* ===== Checkout improvements ===== */
-
-.checkout-card {
-  max-width: 520px;
-  margin: 60px auto;
-  padding: 32px;
-}
-
-.checkout-summary {
-  font-size: 1.1rem;
-  opacity: 0.9;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  margin-bottom: 24px;
-}
-
-.divider {
-  margin: 28px 0;
-  opacity: 0.3;
-}
-
-.skill-section {
-  margin-bottom: 28px;
-}
-
-.skill-question {
-  margin: 12px 0 16px;
-}
-
-.options-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-}
-
-.option-btn {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #666;
-  background: transparent;
-  color: #fff;
-  cursor: pointer;
-}
-
-.option-btn:hover {
-  border-color: gold;
-}
-
-.option-btn.correct {
-  background: gold;
-  color: #000;
-}
-
-.option-btn.wrong {
-  background: #7a1f1f;
-  border-color: #b33;
-}
-
-/* ===== Checkout button fixes ===== */
-
-.button-group {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-top: 32px;
-}
-
-/* Primary Stripe button */
-.btn-primary {
-  background: linear-gradient(135deg, #f5c451, #d4a42c);
-  color: #000;
-  padding: 14px 22px;
-  border-radius: 12px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(245, 196, 81, 0.35);
-}
-
-/* Disabled Stripe button (important) */
-.btn-primary:disabled {
-  background: #3a3a3a;
-  color: #888;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-}
-
-/* Secondary button */
-.btn-secondary {
-  padding: 14px 22px;
-  border-radius: 12px;
-  border: 1px solid #d4a42c;
-  color: #d4a42c;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-  background: rgba(212, 164, 44, 0.1);
-}
-.checkout-card {
-  background: radial-gradient(
-    circle at top,
-    rgba(255, 255, 255, 0.06),
-    rgba(0, 0, 0, 0.9)
-  );
-  box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-/* ===============================
-   SKILL QUESTION STATUS (UX)
-   =============================== */
-
-.skill-status {
-  margin-top: 16px;
-  font-size: 0.95rem;
-  opacity: 0.9;
-  text-align: center;
-}
-
-.skill-status.error {
-  color: #ff6b6b;
-}
-
-.skill-status.success {
-  color: #6ef5a3;
-}
-/* ===== Skill Question UX ===== */
-
-.attempt-info {
-  font-size: 0.9rem;
-  margin-bottom: 16px;
-  opacity: 0.85;
-}
-
-.attempt-info strong {
-  color: #f5d76e;
-}
-
-
-
