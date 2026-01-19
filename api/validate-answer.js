@@ -1,9 +1,5 @@
 import crypto from "crypto";
 
-if (!SECRET) {
-  throw new Error("ATTEMPT_SIGNING_SECRET is not set");
-}
-
 /* ===============================
    CONFIG
 =============================== */
@@ -23,15 +19,16 @@ const QUESTIONS = {
 };
 
 /* ===============================
-   IN-MEMORY STORE (OK for MVP)
-   (Vercel keeps this per instance)
+   IN-MEMORY STORE (MVP SAFE)
 =============================== */
 const attemptsStore = new Map();
 
 /* ===============================
-   TOKEN SIGNING
+   TOKEN SIGNING (SAFE)
 =============================== */
 function signToken(priceId, qid) {
+  if (!SECRET) return null;
+
   return crypto
     .createHmac("sha256", SECRET)
     .update(`${priceId}:${qid}`)
@@ -42,53 +39,71 @@ function signToken(priceId, qid) {
    API HANDLER
 =============================== */
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  try {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
 
-  const { priceId, qid, visitId, answer } = req.body || {};
+    const { priceId, qid, visitId, answer } = req.body || {};
 
-  if (!priceId || !qid || !visitId || !answer) {
-    return res.status(400).json({ error: "Missing data" });
-  }
+    if (!priceId || !qid || !visitId || !answer) {
+      return res.status(400).json({ error: "Missing data" });
+    }
 
-  const question = QUESTIONS[qid];
-  if (!question) {
-    return res.status(400).json({ error: "Invalid question" });
-  }
+    if (!SECRET) {
+      console.error("❌ ATTEMPT_SIGNING_SECRET is missing");
+      return res.status(500).json({ error: "Server configuration error" });
+    }
 
-  const key = `${priceId}:${qid}:${visitId}`;
-  const record = attemptsStore.get(key) || { attempts: 0, locked: false };
+    const question = QUESTIONS[qid];
+    if (!question) {
+      return res.status(400).json({ error: "Invalid question" });
+    }
 
-  if (record.locked) {
-    return res.json({ correct: false, locked: true });
-  }
+    const key = `${priceId}:${qid}:${visitId}`;
+    const record = attemptsStore.get(key) || { attempts: 0, locked: false };
 
-  if (answer === question.answer) {
-    attemptsStore.delete(key);
+    if (record.locked) {
+      return res.json({ correct: false, locked: true });
+    }
 
-    return res.json({
-      correct: true,
-      token: signToken(priceId, qid)
-    });
-  }
+    /* ✅ CORRECT ANSWER */
+    if (answer === question.answer) {
+      attemptsStore.delete(key);
 
-  record.attempts += 1;
+      const token = signToken(priceId, qid);
+      if (!token) {
+        return res.status(500).json({ error: "Token generation failed" });
+      }
 
-  if (record.attempts >= MAX_ATTEMPTS) {
-    record.locked = true;
+      return res.json({
+        correct: true,
+        token
+      });
+    }
+
+    /* ❌ WRONG ANSWER */
+    record.attempts += 1;
+
+    if (record.attempts >= MAX_ATTEMPTS) {
+      record.locked = true;
+      attemptsStore.set(key, record);
+
+      return res.json({
+        correct: false,
+        locked: true
+      });
+    }
+
     attemptsStore.set(key, record);
 
     return res.json({
       correct: false,
-      locked: true
+      remaining: MAX_ATTEMPTS - record.attempts
     });
+
+  } catch (err) {
+    console.error("❌ validate-answer error:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
-
-  attemptsStore.set(key, record);
-
-  return res.json({
-    correct: false,
-    remaining: MAX_ATTEMPTS - record.attempts
-  });
 }
