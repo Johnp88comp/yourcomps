@@ -337,4 +337,42 @@ body {
   position: relative;
   z-index: 2;
 }
+/* ===============================
+   FINAL CHECKOUT CLICK FIX
+   =============================== */
+
+/* Force checkout card into its own stacking context */
+.checkout-card {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Ensure options sit above ALL card layers */
+.skill-section,
+.options-grid,
+.option-btn {
+  position: relative;
+  z-index: 10;
+}
+/* =========================
+   SUCCESS PAGE FIX
+========================= */
+
+.checkout-title {
+  margin-bottom: 16px;
+}
+
+.checkout-summary {
+  margin-bottom: 28px;
+  opacity: 0.9;
+}
+
+.checkout-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+
 
