@@ -34,9 +34,7 @@
      correctly before entry.
    </p>
 
-      <p id="attemptInfo" class="attempt-info">
-      Attempts remaining: <strong>3</strong> of 3
-    </p>
+      <p id="attemptInfo" class="attempt-info"></p>
 
 
     <p id="question" class="skill-question"></p>
@@ -97,6 +95,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   questionEl.textContent = qData.question;
+  attemptInfo.innerHTML = "Attempts remaining: <strong>3</strong> of 3";
 
   /* -----------------------------
      RENDER ANSWERS
@@ -138,13 +137,21 @@ document.addEventListener("DOMContentLoaded", async () => {
        // ❌ WRONG ANSWER
        btn.classList.add("wrong");
 
-       // 🔒 LOCKED — highest priority
        if (data.locked === true) {
-       optionsEl.innerHTML =
-       "<p class='error'>Too many failed attempts. Entry locked.</p>";
 
+        // Hide question & answers
+        questionEl.style.display = "none";
+        optionsEl.innerHTML = "";
 
-       return; // ⛔ STOP here
+         // Remove attempts text completely
+         attemptInfo.innerHTML = "";
+
+        // Show ONE clear lock message
+        const statusEl = document.getElementById("skillStatus");
+        statusEl.textContent = "Too many failed attempts. Entry locked.";
+        statusEl.className = "skill-status error";
+
+       return;
       }
 
        // ✅ Still attempts left
