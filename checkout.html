@@ -106,10 +106,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       const data = await res.json();
 
       if (data.correct === true) {
-        btn.classList.add("correct");
-        verificationToken = data.token; // 🔐 STORE SIGNED TOKEN
+       btn.classList.add("correct");
+
+        // 🔑 STORE TOKEN FOR STRIPE
+        window.skillToken = data.token;
+
         payBtn.disabled = false;
-      } else {
+       f}
+
         btn.classList.add("wrong");
 
         if (data.locked) {
@@ -137,11 +141,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        priceId,
-        quantity: Number(qtyInput.value || 1),
-        qid,
-        token: verificationToken // 🔐 REQUIRED
+       priceId,
+       quantity: Number(qtyInput.value || 1),
+       qid,
+       token: window.skillToken
       })
+
     });
 
     const data = await res.json();
