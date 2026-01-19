@@ -358,6 +358,24 @@ body {
     0 20px 40px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
+/* ===============================
+   SKILL QUESTION STATUS (UX)
+   =============================== */
+
+.skill-status {
+  margin-top: 16px;
+  font-size: 0.95rem;
+  opacity: 0.9;
+  text-align: center;
+}
+
+.skill-status.error {
+  color: #ff6b6b;
+}
+
+.skill-status.success {
+  color: #6ef5a3;
+}
 
 
 
