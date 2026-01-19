@@ -376,6 +376,17 @@ body {
 .skill-status.success {
   color: #6ef5a3;
 }
+/* ===== Skill Question UX ===== */
+
+.attempt-info {
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  opacity: 0.85;
+}
+
+.attempt-info strong {
+  color: #f5d76e;
+}
 
 
 

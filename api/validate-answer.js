@@ -1,5 +1,9 @@
 import crypto from "crypto";
 
+if (!SECRET) {
+  throw new Error("ATTEMPT_SIGNING_SECRET is not set");
+}
+
 /* ===============================
    CONFIG
 =============================== */
