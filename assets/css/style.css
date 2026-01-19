@@ -1,4 +1,6 @@
-/* ========= RESET ========= */
+/* =========================
+   RESET
+========================= */
 * {
   margin: 0;
   padding: 0;
@@ -17,7 +19,9 @@ body {
   line-height: 1.6;
 }
 
-/* ========= HEADER ========= */
+/* =========================
+   HEADER
+========================= */
 .site-header {
   position: sticky;
   top: 0;
@@ -36,7 +40,9 @@ body {
   color: #d4af37;
 }
 
-/* ========= NAV ========= */
+/* =========================
+   NAVIGATION
+========================= */
 #mobileNav {
   display: flex;
   gap: 18px;
@@ -66,7 +72,9 @@ body {
   cursor: pointer;
 }
 
-/* ========= HERO ========= */
+/* =========================
+   HERO
+========================= */
 .hero {
   min-height: 70vh;
   display: flex;
@@ -86,7 +94,9 @@ body {
   margin-bottom: 12px;
 }
 
-/* ========= BUTTONS ========= */
+/* =========================
+   BUTTONS
+========================= */
 .btn-cta {
   background: linear-gradient(135deg, #d4af37, #f5d76e);
   color: #0b0f14;
@@ -94,6 +104,8 @@ body {
   border-radius: 12px;
   text-decoration: none;
   font-weight: 700;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-outline {
@@ -104,7 +116,9 @@ body {
   text-decoration: none;
 }
 
-/* ========= CARDS ========= */
+/* =========================
+   CARDS (HOMEPAGE)
+========================= */
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -129,22 +143,23 @@ body {
   height: 200px;
   object-fit: cover;
 }
-/* ========= CARD META & ACTIONS (RESTORED) ========= */
 
 .card-meta {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 14px;
+  padding: 14px 16px;
 }
 
 .card-actions {
-  margin-left: auto; /* pushes Enter button to the right */
+  margin-left: auto;
   display: flex;
   align-items: center;
 }
 
-/* ========= CHECKOUT ========= */
+/* =========================
+   CHECKOUT CARD
+========================= */
 .checkout-card {
   max-width: 520px;
   margin: 64px auto;
@@ -160,9 +175,12 @@ body {
   box-shadow:
     0 20px 40px rgba(0,0,0,0.6),
     inset 0 1px 0 rgba(255,255,255,0.05);
+  position: relative;
 }
 
-/* ========= FORM ========= */
+/* =========================
+   FORM
+========================= */
 .form-group {
   margin-bottom: 24px;
 }
@@ -172,10 +190,11 @@ body {
   opacity: 0.3;
 }
 
-/* ========= SKILL QUESTION ========= */
+/* =========================
+   SKILL QUESTION
+========================= */
 .skill-section {
   margin-bottom: 32px;
-  pointer-events: auto; /* 🔑 ENSURE CLICKS WORK */
 }
 
 .skill-question {
@@ -186,7 +205,6 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
-  pointer-events: auto;
 }
 
 .option-btn {
@@ -197,7 +215,6 @@ body {
   color: #fff;
   cursor: pointer;
   transition: all 0.15s ease;
-  pointer-events: auto;
 }
 
 .option-btn:hover {
@@ -215,21 +232,9 @@ body {
   border-color: #b33;
 }
 
-/* ========= STATUS ========= */
-.skill-status {
-  margin-top: 16px;
-  font-size: 0.95rem;
-}
-
-.skill-status.error {
-  color: #ff6b6b;
-}
-
-.skill-status.success {
-  color: #6ef5a3;
-}
-
-/* ========= CHECKOUT BUTTONS ========= */
+/* =========================
+   CHECKOUT BUTTONS
+========================= */
 .button-group {
   display: flex;
   gap: 16px;
@@ -262,10 +267,14 @@ body {
   text-decoration: none;
 }
 
-/* ========= MOBILE ========= */
+/* =========================
+   MOBILE
+========================= */
 @media (max-width: 860px) {
   .menu-toggle {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   #mobileNav {
@@ -286,7 +295,9 @@ body {
   }
 }
 
-/* ========= FOOTER ========= */
+/* =========================
+   FOOTER
+========================= */
 .site-footer {
   text-align: center;
   padding: 24px;
