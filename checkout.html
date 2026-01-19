@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   summaryEl.textContent = decodeURIComponent(title);
 
-  let verificationToken = null;
+  let skillToken = null;
 
   /* -----------------------------
      FETCH QUESTION (SERVER)
@@ -89,7 +89,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     btn.textContent = opt;
 
     btn.onclick = async () => {
-      // Disable all options during validation
+
+      // disable all buttons while validating
       document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
 
       const res = await fetch("/api/validate-answer", {
@@ -106,25 +107,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       const data = await res.json();
 
       if (data.correct === true) {
-       btn.classList.add("correct");
+        btn.classList.add("correct");
 
-        // 🔑 STORE TOKEN FOR STRIPE
-        window.skillToken = data.token;
+        // 🔑 store token for Stripe
+        skillToken = data.token;
 
         payBtn.disabled = false;
-       f}
-
-        btn.classList.add("wrong");
-
-        if (data.locked) {
-          optionsEl.innerHTML =
-            "<p class='error'>Too many failed attempts. Entry locked.</p>";
-        } else {
-          alert(`Incorrect. Attempts remaining: ${data.remaining}`);
-          // Re-enable buttons
-          document.querySelectorAll(".option-btn").forEach(b => b.disabled = false);
-        }
+        return;
       }
+
+      // ❌ WRONG ANSWER
+      btn.classList.add("wrong");
+
+      if (data.locked) {
+        optionsEl.innerHTML =
+          "<p class='error'>Too many failed attempts. Entry locked.</p>";
+        return;
+      }
+
+      alert(`Incorrect. Attempts remaining: ${data.remaining}`);
+      document.querySelectorAll(".option-btn").forEach(b => b.disabled = false);
     };
 
     optionsEl.appendChild(btn);
@@ -134,6 +136,11 @@ document.addEventListener("DOMContentLoaded", async () => {
      STRIPE (SECURE)
   ------------------------------ */
   payBtn.onclick = async () => {
+    if (!skillToken) {
+      alert("Please answer the skill question correctly.");
+      return;
+    }
+
     payBtn.disabled = true;
     payBtn.textContent = "Redirecting…";
 
@@ -141,12 +148,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-       priceId,
-       quantity: Number(qtyInput.value || 1),
-       qid,
-       token: window.skillToken
+        priceId,
+        quantity: Number(qtyInput.value || 1),
+        qid,
+        token: skillToken
       })
-
     });
 
     const data = await res.json();
