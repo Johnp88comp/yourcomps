@@ -1,21 +1,29 @@
-import clientPromise from "../lib/mongodb";
+import { MongoClient } from "mongodb";
 
 export default async function handler(req, res) {
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const uri = process.env.MONGODB_URI;
 
+    if (!uri) {
+      return res.status(500).json({ error: "MONGODB_URI missing" });
+    }
+
+    const client = new MongoClient(uri);
+    await client.connect();
+
+    const db = client.db("yourcomps");
     const collections = await db.listCollections().toArray();
 
-    res.status(200).json({
-      success: true,
+    await client.close();
+
+    return res.status(200).json({
+      ok: true,
       collections: collections.map(c => c.name),
     });
-  } catch (error) {
-    console.error("DB TEST ERROR:", error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
+  } catch (err) {
+    return res.status(500).json({
+      error: err.message,
+      stack: err.stack,
     });
   }
 }
