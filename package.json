@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,12 +14,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/Johnp88comp/yourcomps/issues"
   },
   "homepage": "https://github.com/Johnp88comp/yourcomps#readme",
   "dependencies": {
+    "mongodb": "^6.5.0",
     "stripe": "^20.1.2"
   }
 }
