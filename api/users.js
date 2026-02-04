@@ -12,40 +12,56 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      const body = req.body || {};
-      const { email, name, role = "user" } = body;
+  let body;
 
-      if (!email || !name) {
-        return res.status(400).json({ ok: false, error: "Email and name are required" });
-      }
+  try {
+    body = typeof req.body === "string"
+      ? JSON.parse(req.body)
+      : req.body;
+  } catch (err) {
+    return res.status(400).json({
+      ok: false,
+      error: "Invalid JSON body"
+    });
+  }
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({ ok: false, error: "Invalid email format" });
-      }
+  const { email, name } = body;
 
-      const existing = await users.findOne({ email });
-      if (existing) {
-        return res.status(409).json({ ok: false, error: "User already exists" });
-      }
+  if (!email || !name) {
+    return res.status(400).json({
+      ok: false,
+      error: "Email and name are required"
+    });
+  }
 
-      const result = await users.insertOne({
-        email,
-        name,
-        role,
-        createdAt: new Date(),
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+
+    const existing = await db.collection("users").findOne({ email });
+    if (existing) {
+      return res.status(409).json({
+        ok: false,
+        error: "User already exists"
       });
-
-      return res.status(201).json({ ok: true, id: result.insertedId });
     }
 
-    return res.status(405).json({ ok: false, error: "Method not allowed" });
+    const result = await db.collection("users").insertOne({
+      email,
+      name,
+      createdAt: new Date()
+    });
+
+    return res.status(201).json({
+      ok: true,
+      id: result.insertedId
+    });
   } catch (err) {
-    console.error("API /api/users crashed:", err);
+    console.error("POST /api/users error:", err);
     return res.status(500).json({
       ok: false,
-      error: "Server error",
-      details: err?.message || String(err),
+      error: "Server error"
     });
   }
 }
+
