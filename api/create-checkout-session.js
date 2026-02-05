@@ -63,6 +63,7 @@ export default async function handler(req, res) {
     competitionId,
     userId,
     quantity: ticketQuantity.toString(),
+    entryType: "paid",
   },
    });
 
