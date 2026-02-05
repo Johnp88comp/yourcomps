@@ -28,6 +28,29 @@ export default async function handler(req, res) {
     const competition = await competitions.findOne({
       _id: new ObjectId(competitionId),
     });
+    // Competition must exist
+if (!competition) {
+  return res.status(404).json({
+    ok: false,
+    error: "Competition not found"
+  });
+}
+
+// Competition must be live
+if (competition.status !== "live") {
+  return res.status(403).json({
+    ok: false,
+    error: "Competition is not live"
+  });
+}
+
+// Competition must not be past draw date
+if (new Date(competition.drawDate) <= new Date()) {
+  return res.status(403).json({
+    ok: false,
+    error: "Competition has closed"
+  });
+}
 
     if (!competition) {
       return res.status(404).json({
@@ -59,6 +82,19 @@ export default async function handler(req, res) {
         });
       }
     }
+if (competition.maxEntriesPerUser) {
+  const userEntryCount = await entries.countDocuments({
+    competitionId,
+    userId
+  });
+
+  if (userEntryCount >= competition.maxEntriesPerUser) {
+    return res.status(403).json({
+      ok: false,
+      error: "User entry limit reached"
+    });
+  }
+}
 
     // Create entry
     const entryResult = await entries.insertOne({

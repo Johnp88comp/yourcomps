@@ -49,17 +49,23 @@ export default async function handler(req, res) {
     const baseUrl = "https://yourcomps.vercel.app";
 
     const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price: priceId,
-          quantity,
-        },
-      ],
-      success_url: `${baseUrl}/success.html`,
-      cancel_url: `${baseUrl}/cancel.html`,
-    });
+  payment_method_types: ["card"],
+  mode: "payment",
+  line_items: [
+    {
+      price: priceId,
+      quantity: ticketQuantity,
+    },
+  ],
+  success_url: `${BASE_URL}/success.html`,
+  cancel_url: `${BASE_URL}/cancel.html`,
+  metadata: {
+    competitionId,
+    userId,
+    quantity: ticketQuantity.toString(),
+  },
+   });
+
 
     return res.status(200).json({ url: session.url });
 
