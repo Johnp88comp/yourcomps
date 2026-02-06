@@ -19,10 +19,14 @@ function verifyToken(priceId, qid, token) {
     .update(`${priceId}:${qid}`)
     .digest("hex");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(expected, "hex"),
-    Buffer.from(token, "hex")
-  );
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(expected, "hex"),
+      Buffer.from(token, "hex")
+    );
+  } catch {
+    return false;
+  }
 }
 
 /* ===============================
@@ -40,7 +44,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // 🔒 HARD BLOCK: must pass skill question
+    // 🔒 MUST PASS SKILL QUESTION
     const valid = verifyToken(priceId, qid, token);
     if (!valid) {
       return res.status(403).json({ error: "Skill verification failed" });
@@ -49,20 +53,25 @@ export default async function handler(req, res) {
     const baseUrl = "https://yourcomps.vercel.app";
 
     const session = await stripe.checkout.sessions.create({
-  mode: "payment",
-  line_items: [...],
+      mode: "payment",
 
-  metadata: {
-    competitionId,
-    userId,
-    quantity: String(quantity),
-    entryType: "paid"
-  },
+      line_items: [
+        {
+          price: priceId,
+          quantity: quantity,
+        },
+      ],
 
-  success_url: "...",
-  cancel_url: "..."
-});
+      metadata: {
+        competitionId: priceId, // temporary until wired properly
+        userId: "temp_user",
+        quantity: String(quantity),
+        entryType: "paid"
+      },
 
+      success_url: `${baseUrl}/success.html`,
+      cancel_url: `${baseUrl}/cancel.html`,
+    });
 
     return res.status(200).json({ url: session.url });
 
