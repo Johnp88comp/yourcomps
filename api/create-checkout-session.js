@@ -38,9 +38,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { priceId, quantity = 1, qid, token } = req.body || {};
+    const {
+      priceId,
+      competitionId,
+      userId,
+      quantity = 1,
+      qid,
+      token
+    } = req.body || {};
 
-    if (!priceId || !qid || !token) {
+    if (!priceId || !competitionId || !userId || !qid || !token) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -63,8 +70,8 @@ export default async function handler(req, res) {
       ],
 
       metadata: {
-        competitionId: priceId, // temporary until wired properly
-        userId: "temp_user",
+        competitionId,
+        userId,
         quantity: String(quantity),
         entryType: "paid"
       },
@@ -80,3 +87,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Stripe session failed" });
   }
 }
+

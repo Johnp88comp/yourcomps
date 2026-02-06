@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { ObjectId } from "mongodb";
 import clientPromise from "../lib/mongodb.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -16,17 +17,19 @@ export default async function handler(req, res) {
 
   try {
     const rawBody = await getRawBody(req);
+
     event = stripe.webhooks.constructEvent(
       rawBody,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
+
   } catch (err) {
-    console.error("❌ Webhook signature verification failed:", err.message);
+    console.error("❌ Signature verification failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // ✅ Handle successful checkout
+  // Only care about successful payments
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
@@ -38,48 +41,64 @@ export default async function handler(req, res) {
     }
   }
 
-  res.json({ received: true });
+  // Always respond to Stripe
+  res.status(200).json({ received: true });
 }
 
-/* ---------------- HELPERS ---------------- */
+
+/* ===============================
+   HANDLE SUCCESSFUL PAYMENT
+================================ */
 
 async function handleSuccessfulPayment(session) {
   const client = await clientPromise;
   const db = client.db("yourcomps");
 
-  const {
-    competitionId,
-    userId,
-    quantity,
-  } = session.metadata;
+  const metadata = session.metadata || {};
+
+  const { competitionId, userId, quantity } = metadata;
+
+  if (!competitionId || !userId || !quantity) {
+    throw new Error("Missing required metadata in Stripe session");
+  }
+
+  const quantityNum = Number(quantity);
+  if (isNaN(quantityNum) || quantityNum <= 0) {
+    throw new Error("Invalid quantity value");
+  }
+
+  const competitionObjectId = new ObjectId(competitionId);
 
   const entries = db.collection("entries");
   const competitions = db.collection("competitions");
 
-  const quantityNum = Number(quantity);
-
-  // Create entries
-  const docs = Array.from({ length: quantityNum }).map(() => ({
-    competitionId,
+  // Create entry documents
+  const entryDocs = Array.from({ length: quantityNum }).map(() => ({
+    competitionId: competitionObjectId,
     userId,
     createdAt: new Date(),
     paymentIntent: session.payment_intent,
   }));
 
-  await entries.insertMany(docs);
+  await entries.insertMany(entryDocs);
 
-  // Increment competition entry count
   await competitions.updateOne(
-    { _id: new db.bson.ObjectId(competitionId) },
+    { _id: competitionObjectId },
     { $inc: { entriesCount: quantityNum } }
   );
 
   console.log(`✅ ${quantityNum} entries created for user ${userId}`);
 }
 
+
+/* ===============================
+   RAW BODY READER
+================================ */
+
 function getRawBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
+
     req.on("data", chunk => chunks.push(chunk));
     req.on("end", () => resolve(Buffer.concat(chunks)));
     req.on("error", reject);
